@@ -28,13 +28,15 @@
 
 #include <inttypes.h>
 
+#define XBEENG_WITH_EXTRAS
+
 // set to ATAP value of XBee. AP=2 is recommended
 #define ATAP 2
 
 #define XB_START    0x7e
-#define XB_ESCAPE    0x7d
-#define XB_ON        0x11
-#define XB_OFF        0x13
+#define XB_ESCAPE   0x7d
+#define XB_ON       0x11
+#define XB_OFF      0x13
 
 /*
  * This value determines the size of the byte array for
@@ -205,9 +207,11 @@ public:
      */
     uint8_t getErrorCode();
     void setErrorCode(const uint8_t& errorCode);
+#ifdef XBEENG_WITH_EXTRAS
     /*
      */
     void printSumary(Stream& strm);
+#endif
 protected:
     uint8_t _cmdId;
     uint8_t* _cmdData;
@@ -323,8 +327,10 @@ public:
     uint8_t getOptions();
     void setOptions(const uint8_t& options);
 
+    uint8_t* getData();
     void setData(const uint8_t* data, const uint16_t& dataLength);
     void setData(const char* data);
+    uint16_t getDataLength();
 private:
     void setBroadcast(const uint8_t& broadcast, const bool& performChecksum);
     void setOptions(const uint8_t& options, const bool& performChecksum);
@@ -443,10 +449,16 @@ public:
         const uint8_t& options,
         const char (&cmd)[3], const uint8_t* param, const uint16_t& paramLength);
 
+    uint8_t getOptions();
     void setOptions(const uint8_t& options);
+
+    uint16_t getCmd();
     void setCmd(const uint16_t& cmd);
     void setCmd(const char* cmd);
+
+    uint8_t* getParam();
     void setParam(const uint8_t* param, const uint16_t& paramLength);
+    uint16_t getParamLength();
 private:
     void setOptions(const uint8_t& options, const bool& performChecksum);
     void setCmd(const uint16_t& cmd, const bool& performChecksum);

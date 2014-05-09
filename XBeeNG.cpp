@@ -98,86 +98,186 @@ XBeeApiFrame::getErrorCode() { return _errorCode; }
 void
 XBeeApiFrame::setErrorCode(const uint8_t& errorCode) { _errorCode = errorCode; }
 
+#ifdef XBEENG_WITH_EXTRAS
 void
 XBeeApiFrame::printSumary(Stream& strm) {
     strm.print(F("cmdID:")); strm.println(this->getCmdId(),HEX);
 
-    switch (_cmdId) {
-    case 0x10: // TxRequest
-    case 0x11: // ExplicitTxRequest
-    case 0x17: // RemoteAtCommand
-    case 0x97: // RemoteAtCommandResponse
-    { // All TxRxFrameIdDescription descendants
-        TxRxFrameIdDescription* pt = static_cast<TxRxFrameIdDescription*>(this);
-        strm.print(F("Frame ID:")); strm.println(pt->getFrameId(),HEX);
-        uint32_t address64Msb = pt->getAddress64Msb(); uint8_t* address64MsbPtr = (uint8_t*)&address64Msb;
-        uint32_t address64Lsb = pt->getAddress64Lsb(); uint8_t* address64LsbPtr = (uint8_t*)&address64Lsb;
-        strm.print(F("Address64Msb:"));
-        for (uint8_t i = 0; i < 4; i++) { printHex(strm, address64MsbPtr[i]); }
-        strm.println();
-        strm.print(F("Address64Lsb:"));
-        for (uint8_t i = 0; i < 4; i++) { printHex(strm, address64LsbPtr[i]); }
-        strm.println();
-        uint16_t address16 = pt->getAddress16(); uint8_t* address16Ptr = (uint8_t*)&address16;
-        strm.print(F("Address16:"));
-        for (uint8_t i = 0; i < 2; i++) { printHex(strm, address16Ptr[i]); }
-        strm.println();
-    } break;
-    case 0x08: // AtCommand
-    case 0x09: // AtQueueCommand
-    case 0x88: // AtCommandResponse
-    case 0x8B: // TxStatus
-    { // FrameIdDescription descendants
+    // All FrameIdDescription descendants:
+    if (_cmdId == 0x08 || _cmdId == 0x09 || _cmdId == 0x10 || _cmdId == 0x11 ||
+        _cmdId == 0x17 || _cmdId == 0x88 || _cmdId == 0x8B || _cmdId == 0x97) {
         FrameIdDescription* pt = static_cast<FrameIdDescription*>(this);
         strm.print(F("Frame ID:")); strm.println(pt->getFrameId(),HEX);
-    } break;
-    case 0x8A: // ModemStatus
-    {
-        ModemStatus* pt = static_cast<ModemStatus*>(this);
-        strm.print(F("Status:")); strm.println(pt->getStatus(),HEX);
-    }break;
-    case 0x90: // RxIndicator
-    case 0x91: // ExplicitRxIndicator
-    case 0x92: // RxDataSample
-    case 0x95: // RxNodeIdentification
-    { // All TxRxXBeeApiFrame descendants
+        // All TxRxFrameIdDescription descendants:
+        if (_cmdId == 0x10 || _cmdId == 0x11 || _cmdId == 0x17 || _cmdId == 0x97) {
+            TxRxFrameIdDescription* xpt = static_cast<TxRxFrameIdDescription*>(this);
+            uint32_t address64Msb = xpt->getAddress64Msb(); uint8_t* address64MsbPtr = (uint8_t*)&address64Msb;
+            uint32_t address64Lsb = xpt->getAddress64Lsb(); uint8_t* address64LsbPtr = (uint8_t*)&address64Lsb;
+            strm.print(F("Address64Msb:"));
+            for (uint8_t i = 0; i < 4; i++) { printHex(strm, address64MsbPtr[i]); }
+            strm.println();
+            strm.print(F("Address64Lsb:"));
+            for (uint8_t i = 0; i < 4; i++) { printHex(strm, address64LsbPtr[i]); }
+            strm.println();
+            uint16_t address16 = xpt->getAddress16(); uint8_t* address16Ptr = (uint8_t*)&address16;
+            strm.print(F("Address16:"));
+            for (uint8_t i = 0; i < 2; i++) { printHex(strm, address16Ptr[i]); }
+            strm.println();
+        }
+    }
+    // All TxRxXBeeApiFrame descendants
+    if (_cmdId == 0x90 || _cmdId == 0x91 || _cmdId == 0x92 || _cmdId == 0x95) {
         TxRxXBeeApiFrame* pt = static_cast<TxRxXBeeApiFrame*>(this);
         uint32_t address64Msb = pt->getAddress64Msb(); uint8_t* address64MsbPtr = (uint8_t*)&address64Msb;
         uint32_t address64Lsb = pt->getAddress64Lsb(); uint8_t* address64LsbPtr = (uint8_t*)&address64Lsb;
-        strm.print(F("Address64Msb:"));
-        for (uint8_t i = 0; i < 4; i++) { printHex(strm, address64MsbPtr[i]); }
+        strm.print(F("Address64Msb:")); for (uint8_t i = 0; i < 4; i++) printHex(strm, address64MsbPtr[i]);
         strm.println();
-        strm.print(F("Address64Lsb:"));
-        for (uint8_t i = 0; i < 4; i++) { printHex(strm, address64LsbPtr[i]); }
+        strm.print(F("Address64Lsb:")); for (uint8_t i = 0; i < 4; i++) printHex(strm, address64LsbPtr[i]);
         strm.println();
         uint16_t address16 = pt->getAddress16(); uint8_t* address16Ptr = (uint8_t*)&address16;
-        strm.print(F("Address16:"));
-        for (uint8_t i = 0; i < 2; i++) { printHex(strm, address16Ptr[i]); }
+        strm.print(F("Address16:")); for (uint8_t i = 0; i < 2; i++) printHex(strm, address16Ptr[i]);
         strm.println();
-    } break;
     }
 
     switch (_cmdId) {
-    case 0x10: // TxRequest
-    {
-        TxRequest* pt = static_cast<TxRequest*>(this);
-        strm.print(F("Broadcast Radius:")); printHex(strm, pt->getBroadcast());
-        strm.print(F("Transmit Options:")); printHex(strm, pt->getOptions());
+    case 0x08:   // AtCommand
+    case 0x09: { // AtQueueCommand
+        AtQueueCommand* pt = static_cast<AtQueueCommand*>(this);
+        uint16_t cmd = pt->getCmd(); uint8_t* cmdPtr = (uint8_t*)&cmd;
+        strm.print(F("Command:"));
+        strm.print((char)cmdPtr[0]); strm.println((char)cmdPtr[1]);
+        uint16_t paramLength = pt->getParamLength();
+        uint8_t* param = pt->getParam();
+        if (paramLength > 0) strm.print(F("Parameter:"));
+        for (int i = 0; i < paramLength; i++) {
+            printHex(strm, param[i]);
+            if (i != (paramLength-1)) strm.print(F(" "));
+            else strm.println();
+        }
+        strm.println();
     } break;
-    /*
-    case 0x11: // ExplicitTxRequest
-    case 0x17: // RemoteAtCommand
-    case 0x97: // RemoteAtCommandResponse
-    case 0x08: // AtCommand
-    case 0x09: // AtQueueCommand
-    case 0x88: // AtCommandResponse
-    case 0x8B: // TxStatus
-    case 0x8A: // ModemStatus
-    case 0x90: // RxIndicator
-    case 0x91: // ExplicitRxIndicator
-    case 0x92: // RxDataSample
-    case 0x95: // RxNodeIdentification
-    */
+    case 0x10: { // TxRequest
+        TxRequest* pt = static_cast<TxRequest*>(this);
+        strm.print(F("Broadcast:")); printHex(strm, pt->getBroadcast());
+        strm.println();
+        strm.print(F("Options:")); printHex(strm, pt->getOptions());
+        strm.println();
+        uint16_t dataLength = pt->getDataLength();
+        uint8_t* data = pt->getData();
+        if (dataLength > 0) strm.print(F("Data:"));
+        for (int i = 0; i < dataLength; i++) {
+            printHex(strm, data[i]);
+            if (i != (dataLength-1)) strm.print(F(" "));
+            else strm.println();
+        }
+        strm.println();
+    } break;
+    case 0x11: { // ExplicitTxRequest
+        ExplicitTxRequest* pt = static_cast<ExplicitTxRequest*>(this);
+        strm.println();
+    } break;
+    case 0x17: { // RemoteAtCommand
+        RemoteAtCommand* pt = static_cast<RemoteAtCommand*>(this);
+        strm.print(F("Options:")); printHex(strm, pt->getOptions());
+        strm.println();
+        uint16_t cmd = pt->getCmd(); uint8_t* cmdPtr = (uint8_t*)&cmd;
+        strm.print(F("Command:"));
+        strm.print((char)cmdPtr[0]); strm.println((char)cmdPtr[1]);
+        uint16_t paramLength = pt->getParamLength();
+        uint8_t* param = pt->getParam();
+        if (paramLength > 0) strm.print(F("Parameter:"));
+        for (int i = 0; i < paramLength; i++) {
+            printHex(strm, param[i]);
+            if (i != (paramLength-1)) strm.print(F(" "));
+            else strm.println();
+        }
+        strm.println();
+    } break;
+    case 0x88: { // AtCommandResponse
+        AtCommandResponse* pt = static_cast<AtCommandResponse*>(this);
+        uint16_t cmd = pt->getCmd(); uint8_t* cmdPtr = (uint8_t*)&cmd;
+        strm.print(F("Command:"));
+        strm.print((char)cmdPtr[0]); strm.println((char)cmdPtr[1]);
+        strm.print(F("Status:")); strm.println(pt->getStatus(), HEX);
+        uint16_t dataLength = pt->getDataLength();
+        uint8_t* data = pt->getData();
+        if (dataLength > 0) strm.print(F("Data:"));
+        for (int i = 0; i < dataLength; i++) {
+            printHex(strm, data[i]);
+            if (i != (dataLength-1)) strm.print(F(" "));
+            else strm.println();
+        }
+        strm.println();
+    } break;
+    case 0x8A: { // ModemStatus
+        ModemStatus* pt = static_cast<ModemStatus*>(this);
+        strm.print(F("Status:")); strm.println(pt->getStatus(), HEX);
+        strm.println();
+    } break;
+    case 0x8B: { // TxStatus
+        TxStatus* pt = static_cast<TxStatus*>(this);
+        uint16_t address16 = pt->getAddress16(); uint8_t* address16Ptr = (uint8_t*)&address16;
+        strm.print(F("Address16:")); for (uint8_t i = 0; i < 2; i++) printHex(strm, address16Ptr[i]);
+        strm.println();
+        strm.print(F("Retry Count:")); strm.println(pt->getRetryCount(), HEX);
+        strm.print(F("Delivery Status:")); strm.println(pt->getDeliveryStatus(), HEX);
+        strm.print(F("Discovery Status:")); strm.println(pt->getDiscoveryStatus(), HEX);
+        strm.println();
+    } break;
+    case 0x90: { // RxIndicator
+        RxIndicator* pt = static_cast<RxIndicator*>(this);
+        strm.print(F("Options:")); strm.println(pt->getOptions(), HEX);
+        uint16_t dataLength = pt->getDataLength();
+        uint8_t* data = pt->getData();
+        if (dataLength > 0) strm.print(F("Data:"));
+        for (int i = 0; i < dataLength; i++) {
+            printHex(strm, data[i]);
+            if (i != (dataLength-1)) strm.print(F(" "));
+            else strm.println();
+        }
+        strm.println();
+    } break;
+    case 0x91: { // ExplicitRxIndicator
+        ExplicitRxIndicator* pt = static_cast<ExplicitRxIndicator*>(this);
+        strm.println();
+    } break;
+    case 0x92: { // RxDataSample
+        RxDataSample* pt = static_cast<RxDataSample*>(this);
+        strm.print(F("Options:")); strm.println(pt->getOptions(), HEX);
+        strm.print(F("Number of Samples:")); strm.println(pt->getNSamples(), HEX);
+        uint16_t digitalMask = pt->getDigitalMask(); uint8_t* digitalMaskPtr = (uint8_t*)&digitalMask;
+        strm.print(F("Digital Mask:")); for (uint8_t i = 0; i < 2; i++) printHex(strm, digitalMaskPtr[i]);
+        strm.println();
+        uint16_t analogMask = pt->getAnalogMask(); uint8_t* analogMaskPtr = (uint8_t*)&analogMask;
+        strm.print(F("Analog Mask:")); for (uint8_t i = 0; i < 2; i++) printHex(strm, analogMaskPtr[i]);
+        strm.println();
+        strm.print(F("Digital Samples:")); strm.println(pt->getOptions(), BYTE);
+        uint16_t analogSamplesLength = pt->getAnalogSamplesLength();
+        uint16_t* analogSamples = pt->getAnalogSamples();
+        if (analogSamplesLength > 0) strm.print(F("Analog Samples:"));
+        for (int i = 0; i < analogSamplesLength; i++) {
+            strm.print(analogSamples[i]);
+            if (i != (analogSamplesLength-1)) strm.print(F(" "));
+            else strm.println();
+        }
+        strm.println();
+    } break;
+    case 0x97: { // RemoteAtCommandResponse
+        RemoteAtCommandResponse* pt = static_cast<RemoteAtCommandResponse*>(this);
+        uint16_t cmd = pt->getCmd(); uint8_t* cmdPtr = (uint8_t*)&cmd;
+        strm.print(F("Command:"));
+        strm.print((char)cmdPtr[0]); strm.println((char)cmdPtr[1]);
+        strm.print(F("Status:")); strm.println(pt->getStatus(), HEX);
+        uint16_t dataLength = pt->getDataLength();
+        uint8_t* data = pt->getData();
+        if (dataLength > 0) strm.print(F("Data:"));
+        for (int i = 0; i < dataLength; i++) {
+            printHex(strm, data[i]);
+            if (i != (dataLength-1)) strm.print(F(" "));
+            else strm.println();
+        }
+        strm.println();
+    } break;
     }
 }
 
@@ -186,6 +286,7 @@ XBeeApiFrame::printHex(Stream& strm, const uint8_t& hex) {
     if (hex < 0x10) strm.print(F("0"));
     strm.print(hex, HEX);
 }
+#endif
 
 
 uint32_t
@@ -474,6 +575,8 @@ TxRequest::setOptions(const uint8_t& options) {
     setOptions(options, true);
 }
 
+uint8_t*
+TxRequest::getData() { return &(_cmdData[17-CMD_DATA_OFFSET]); }
 void
 TxRequest::setData(const uint8_t* data, const uint16_t& dataLength, const bool& performChecksum) {
     if ((getCmdDataLength() - TX_REQUEST_HEAD) != dataLength) {
@@ -496,6 +599,8 @@ void
 TxRequest::setData(const uint8_t* data, const uint16_t& dataLength) {
     setData(data, dataLength, true);
 }
+uint16_t
+TxRequest::getDataLength() { return getCmdDataLength() - TX_REQUEST_HEAD; }
 
 void
 TxRequest::setData(const char* data, const bool& performChecksum) {
@@ -850,6 +955,8 @@ RemoteAtCommand::RemoteAtCommand(const uint8_t& frameId,
     RemoteAtCommand(frameId, address64Msb, address64Lsb,
         BROADCAST_ADDRESS16, options, cmd, param, paramLength) {}
 
+uint8_t
+RemoteAtCommand::getOptions() { return _cmdData[15-CMD_DATA_OFFSET]; }
 void
 RemoteAtCommand::setOptions(const uint8_t& options, const bool& performChecksum) {
     uint8_t* optionsptr = &(_cmdData[15-CMD_DATA_OFFSET]);
@@ -861,6 +968,8 @@ RemoteAtCommand::setOptions(const uint8_t& options) {
     setOptions(options, true);
 }
 
+uint16_t
+RemoteAtCommand::getCmd() { return *((uint16_t*)&(_cmdData[16-CMD_DATA_OFFSET])); }
 void
 RemoteAtCommand::setCmd(const uint16_t& cmd, const bool& performChecksum) {
     uint16_t* cmdptr = (uint16_t*)&(_cmdData[16-CMD_DATA_OFFSET]);
@@ -901,6 +1010,8 @@ RemoteAtCommand::setCmd(const char* cmd) {
     setCmd(cmd, true);
 }
 
+uint8_t*
+RemoteAtCommand::getParam() { return &(_cmdData[18-CMD_DATA_OFFSET]); }
 void
 RemoteAtCommand::setParam(const uint8_t* param, const uint16_t& paramLength,
     const bool& performChecksum) {
@@ -924,6 +1035,8 @@ void
 RemoteAtCommand::setParam(const uint8_t* param, const uint16_t& paramLength) {
     setParam(param, paramLength, true);
 }
+uint16_t
+RemoteAtCommand::getParamLength() { return getCmdDataLength() - REMOTE_AT_COMMAND_HEAD; }
 
 
 uint16_t
