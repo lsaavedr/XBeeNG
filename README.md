@@ -1,4 +1,4 @@
-xbee-ng
-=======
+XBeeNG
+======
 
-Arduino library for communicating with XBees in API=2 mode
+Arduino library for communicating with XBees in API=2 mode.

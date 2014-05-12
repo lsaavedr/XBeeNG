@@ -101,6 +101,7 @@ XBeeApiFrame::setErrorCode(const uint8_t& errorCode) { _errorCode = errorCode; }
 #ifdef XBEENG_WITH_EXTRAS
 void
 XBeeApiFrame::printSumary(Stream& strm) {
+    strm.println();
     strm.print(F("cmdID:")); strm.println(this->getCmdId(),HEX);
 
     // All FrameIdDescription descendants:
@@ -224,8 +225,8 @@ XBeeApiFrame::printSumary(Stream& strm) {
         strm.print(F("Discovery Status:")); strm.println(pt->getDiscoveryStatus(), HEX);
         strm.println();
     } break;
-    case 0x90: { // RxIndicator
-        RxIndicator* pt = static_cast<RxIndicator*>(this);
+    case 0x90: { // RxResponse
+        RxResponse* pt = static_cast<RxResponse*>(this);
         strm.print(F("Options:")); strm.println(pt->getOptions(), HEX);
         uint16_t dataLength = pt->getDataLength();
         uint8_t* data = pt->getData();
@@ -237,8 +238,8 @@ XBeeApiFrame::printSumary(Stream& strm) {
         }
         strm.println();
     } break;
-    case 0x91: { // ExplicitRxIndicator
-        ExplicitRxIndicator* pt = static_cast<ExplicitRxIndicator*>(this);
+    case 0x91: { // ExplicitRxResponse
+        ExplicitRxResponse* pt = static_cast<ExplicitRxResponse*>(this);
         strm.println();
     } break;
     case 0x92: { // RxDataSample
@@ -260,6 +261,34 @@ XBeeApiFrame::printSumary(Stream& strm) {
             if (i != (analogSamplesLength-1)) strm.print(F(" "));
             else strm.println();
         }
+        strm.println();
+    } break;
+    case 0x95: { // RxNodeId
+        RxNodeId* pt = static_cast<RxNodeId*>(this);
+        strm.print(F("Options:")); strm.println(pt->getOptions(), HEX);
+        uint16_t sourceAddress16 = pt->getSourceAddress16(); uint8_t* sourceAddress16Ptr = (uint8_t*)&sourceAddress16;
+        strm.print(F("Source Address16:"));
+        for (uint8_t i = 0; i < 2; i++) { printHex(strm, sourceAddress16Ptr[i]); }
+        strm.println();
+        uint32_t networkAddress64Msb = pt->getNetworkAddress64Msb(); uint8_t* networkAddress64MsbPtr = (uint8_t*)&networkAddress64Msb;
+        uint32_t networkAddress64Lsb = pt->getNetworkAddress64Lsb(); uint8_t* networkAddress64LsbPtr = (uint8_t*)&networkAddress64Lsb;
+        strm.print(F("Network Address64Msb:"));
+        for (uint8_t i = 0; i < 4; i++) { printHex(strm, networkAddress64MsbPtr[i]); }
+        strm.println();
+        strm.print(F("Network Address64Lsb:"));
+        for (uint8_t i = 0; i < 4; i++) { printHex(strm, networkAddress64LsbPtr[i]); }
+        strm.println();
+        strm.print(F("NI:")); strm.println((char*)(pt->getNi()));
+        uint16_t parentAddress16 = pt->getParentAddress16(); uint8_t* parentAddress16Ptr = (uint8_t*)&parentAddress16;
+        strm.print(F("Parent Address16:"));
+        for (uint8_t i = 0; i < 2; i++) { printHex(strm, parentAddress16Ptr[i]); }
+        strm.println();
+        strm.print(F("Device Type:")); strm.println(pt->getType(), HEX);
+        strm.print(F("Source Event:")); strm.println(pt->getSourceEvent(), HEX);
+        strm.print(F("Digi Profile ID:")); strm.println(pt->getDigiProfileId());
+        strm.print(F("Digi Manufacturer ID:")); strm.println(pt->getDigiManufacturerId());
+        if (pt->getDigiDd() > 0) strm.print(F("Digi DD Value:")); strm.println(pt->getDigiDd());
+        if (pt->getRssi() > 0) strm.print(F("Rssi:")); strm.println(pt->getRssi());
         strm.println();
     } break;
     case 0x97: { // RemoteAtCommandResponse
@@ -1073,30 +1102,30 @@ TxStatus::getDiscoveryStatus() { return _cmdData[9-CMD_DATA_OFFSET]; }
 
 
 uint8_t
-RxIndicator::getOptions() { return _cmdData[14-CMD_DATA_OFFSET]; }
+RxResponse::getOptions() { return _cmdData[14-CMD_DATA_OFFSET]; }
 
 uint8_t*
-RxIndicator::getData() { return &(_cmdData[15-CMD_DATA_OFFSET]); }
+RxResponse::getData() { return &(_cmdData[15-CMD_DATA_OFFSET]); }
 uint16_t
-RxIndicator::getDataLength() { return getCmdDataLength() - RX_INDICATOR_HEAD; }
+RxResponse::getDataLength() { return getCmdDataLength() - RX_RESPONSE_HEAD; }
 
 
 uint8_t
-ExplicitRxIndicator::getSourceEndpoint() { return _cmdData[14-CMD_DATA_OFFSET]; }
+ExplicitRxResponse::getSourceEndpoint() { return _cmdData[14-CMD_DATA_OFFSET]; }
 uint8_t
-ExplicitRxIndicator::getDestinationEndpoint() { return _cmdData[15-CMD_DATA_OFFSET]; }
+ExplicitRxResponse::getDestinationEndpoint() { return _cmdData[15-CMD_DATA_OFFSET]; }
 uint16_t
-ExplicitRxIndicator::getClusterId() { return *((uint16_t*)&(_cmdData[16-CMD_DATA_OFFSET])); }
+ExplicitRxResponse::getClusterId() { return *((uint16_t*)&(_cmdData[16-CMD_DATA_OFFSET])); }
 uint16_t
-ExplicitRxIndicator::getProfileId() { return *((uint16_t*)&(_cmdData[18-CMD_DATA_OFFSET])); }
+ExplicitRxResponse::getProfileId() { return *((uint16_t*)&(_cmdData[18-CMD_DATA_OFFSET])); }
 
 uint8_t
-ExplicitRxIndicator::getOptions() { return _cmdData[20-CMD_DATA_OFFSET]; }
+ExplicitRxResponse::getOptions() { return _cmdData[20-CMD_DATA_OFFSET]; }
 
 uint8_t*
-ExplicitRxIndicator::getData() { return &(_cmdData[21-CMD_DATA_OFFSET]); }
+ExplicitRxResponse::getData() { return &(_cmdData[21-CMD_DATA_OFFSET]); }
 uint16_t
-ExplicitRxIndicator::getDataLength() { return getCmdDataLength() - EXPLICIT_RX_INDICATOR_HEAD; }
+ExplicitRxResponse::getDataLength() { return getCmdDataLength() - EXPLICIT_RX_RESPONSE_HEAD; }
 
 
 uint8_t
@@ -1111,6 +1140,49 @@ uint16_t*
 RxDataSample::getAnalogSamples() { return ((uint16_t*)&(_cmdData[21-CMD_DATA_OFFSET])); }
 uint16_t
 RxDataSample::getAnalogSamplesLength() { return getCmdDataLength() - RX_DATA_SAMPLE_HEAD; }
+
+
+uint16_t
+RxNodeId::getSourceAddress16() { return *((uint16_t*)&(_cmdData[15-CMD_DATA_OFFSET])); }
+uint32_t
+RxNodeId::getNetworkAddress64Msb() { return *((uint32_t*)&(_cmdData[17-CMD_DATA_OFFSET])); }
+uint32_t
+RxNodeId::getNetworkAddress64Lsb() { return *((uint32_t*)&(_cmdData[21-CMD_DATA_OFFSET])); }
+
+uint8_t*
+RxNodeId::getNi() { return &(_cmdData[25-CMD_DATA_OFFSET]); }
+uint16_t
+RxNodeId::getNiLength() {
+    uint8_t* ni = getNi();
+    uint16_t niLength = 0;
+    for (; ni[niLength]!='\0'; niLength++);
+
+    return niLength;
+}
+
+uint16_t
+RxNodeId::getParentAddress16() { return *((uint16_t*)&(_cmdData[27+(getNiLength()-1)-CMD_DATA_OFFSET])); }
+uint8_t
+RxNodeId::getType() { return _cmdData[29+(getNiLength()-1)-CMD_DATA_OFFSET]; }
+uint8_t
+RxNodeId::getSourceEvent() { return _cmdData[30+(getNiLength()-1)-CMD_DATA_OFFSET]; }
+uint16_t
+RxNodeId::getDigiProfileId() { return *((uint16_t*)&(_cmdData[31+(getNiLength()-1)-CMD_DATA_OFFSET])); }
+uint16_t
+RxNodeId::getDigiManufacturerId() { return *((uint16_t*)&(_cmdData[33+(getNiLength()-1)-CMD_DATA_OFFSET])); }
+
+uint32_t
+RxNodeId::getDigiDd() {
+    if (getCmdDataLength() >= (RX_NODE_ID_HEAD+getNiLength()+4))
+        return *((uint32_t*)&(_cmdData[35+(getNiLength()-1)-CMD_DATA_OFFSET]));
+    return 0;
+}
+uint8_t
+RxNodeId::getRssi() {
+    if (getCmdDataLength() >= (RX_NODE_ID_HEAD+getNiLength()+5))
+        return _cmdData[39+(getNiLength()-1)-CMD_DATA_OFFSET];
+    return 0;
+}
 
 
 uint16_t

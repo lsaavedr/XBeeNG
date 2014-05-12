@@ -55,29 +55,32 @@
 // cmdId is always the third byte in a packet
 #define CMD_ID_INDEX 3
 
-// API Frame Names and Values Sent to the Module:
-#define TX_64_REQUEST 0x00
-#define TX_16_REQUEST 0x01
+// API Frame Names
 #define AT_COMMAND 0x08
 #define AT_QUEUE_COMMAND 0x09
 #define TX_REQUEST 0x10
 #define EXPLICIT_TX_REQUEST 0x11
 #define REMOTE_AT_COMMAND 0x17
+#define AT_COMMAND_RESPONSE 0x88
+#define MODEM_STATUS 0x8a
+#define TX_STATUS 0x8B
+
+#define RX_RESPONSE 0x90
+#define EXPLICIT_RX_RESPONSE 0x91
+#define RX_DATA_SAMPLE 0x92
+#define RX_NODE_ID 0x95
+#define REMOTE_AT_COMMAND_RESPONSE 0x97
+// API Frame Names and Values Sent to the Module:
+#define TX_64_REQUEST 0x00
+#define TX_16_REQUEST 0x01
 // API Frame Names and Values Received from the Module:
 #define RX_64_RESPONSE 0x80
 #define RX_16_RESPONSE 0x81
 #define RX_64_IO_RESPONSE 0x82
 #define RX_16_IO_RESPONSE 0x83
-#define MODEM_STATUS 0x8a
-#define TX_STATUS 0x8B
 #define TX_STATUS_RESPONSE 0x89
-#define RX_RESPONSE 0x90
-#define EXPLICIT_RX_RESPONSE 0x91
-#define NODE_ID 0x95
-#define REMOTE_AT_COMMAND_RESPONSE 0x97
 // Others:
 #define CREATE_SOURCE_ROUTE 0x21
-#define IO_SAMPLE_RESPONSE 0x92
 #define SENSOR_READ 0x94
 #define OTA_FIRMWARE_UPDATE_STATUS 0xa0
 #define ROUTE_RECORD 0xa1
@@ -223,6 +226,7 @@ private:
 
     bool _ready;
     uint8_t _errorCode;
+
     void printHex(Stream& strm, const uint8_t& hex);
 };
 
@@ -467,7 +471,6 @@ private:
 };
 
 #define AT_COMMAND_RESPONSE_HEAD 4
-#define AT_COMMAND_RESPONSE 0x88
 class AtCommandResponse : public FrameIdDescription {
 public:
     uint16_t getCmd();
@@ -489,16 +492,16 @@ public:
     uint8_t getDiscoveryStatus();
 };
 
-#define RX_INDICATOR_HEAD 11
-class RxIndicator : public TxRxXBeeApiFrame {
+#define RX_RESPONSE_HEAD 11
+class RxResponse : public TxRxXBeeApiFrame {
 public:
     uint8_t getOptions();
     uint8_t* getData();
     uint16_t getDataLength();
 };
 
-#define EXPLICIT_RX_INDICATOR_HEAD 17
-class ExplicitRxIndicator : public TxRxXBeeApiFrame {
+#define EXPLICIT_RX_RESPONSE_HEAD 17
+class ExplicitRxResponse : public TxRxXBeeApiFrame {
 public:
     uint8_t getSourceEndpoint();
     uint8_t getDestinationEndpoint();
@@ -510,7 +513,7 @@ public:
 };
 
 #define RX_DATA_SAMPLE_HEAD 17
-class RxDataSample : public RxIndicator {
+class RxDataSample : public RxResponse {
 private:
     uint8_t* getData();
     uint16_t getDataLength();
@@ -521,6 +524,29 @@ public:
     uint16_t getDigitalSamples();
     uint16_t* getAnalogSamples();
     uint16_t getAnalogSamplesLength();
+};
+
+#define RX_NODE_ID_HEAD 29
+class RxNodeId : public RxResponse {
+private:
+    uint8_t* getData();
+    uint16_t getDataLength();
+public:
+    uint16_t getSourceAddress16();
+    uint32_t getNetworkAddress64Msb();
+    uint32_t getNetworkAddress64Lsb();
+
+    uint8_t* getNi();
+    uint16_t getNiLength();
+
+    uint16_t getParentAddress16();
+    uint8_t getType();
+    uint8_t getSourceEvent();
+    uint16_t getDigiProfileId();
+    uint16_t getDigiManufacturerId();
+
+    uint32_t getDigiDd();
+    uint8_t getRssi();
 };
 
 #define REMOTE_AT_COMMAND_RESPONSE_HEAD 14
