@@ -2,12 +2,12 @@
 
 Arduino library for communicating with XBees in API=2 mode, with sopport for both [XBee Proprietary RF Modules](http://www.digi.com/products/wireless-wired-embedded-solutions/zigbee-rf-modules/zigbee-mesh-module/xbee-proprietary-rf-modules/) and [XBee ZigBee/802.15.4 RF Modules](http://www.digi.com/products/wireless-wired-embedded-solutions/zigbee-rf-modules/zigbee-mesh-module/xbee-zigbee-802154-rf-modules/), with the classic 20 pin footprint.
 
-### XBee Proprietary RF Modules:
+### XBee Proprietary RF Modules Supported:
 - [XBee-PRO® 900HP](http://www.digi.com/products/wireless-wired-embedded-solutions/zigbee-rf-modules/point-multipoint-rfmodules/xbee-pro-900hp) / [XBee-PRO XSC](http://www.digi.com/products/wireless-wired-embedded-solutions/zigbee-rf-modules/point-multipoint-rfmodules/xbee-pro-xsc) (aka XB900HP).
 - [XBee-PRO 868](http://www.digi.com/products/wireless-wired-embedded-solutions/zigbee-rf-modules/point-multipoint-rfmodules/xbee-pro-868) (aka XB868).
 - [XBee® DigiMesh® 2.4](http://www.digi.com/products/wireless-wired-embedded-solutions/zigbee-rf-modules/zigbee-mesh-module/xbee-digimesh-2-4) (aka XBDM).
 
-### XBee ZigBee/802.15.4 RF Modules
+### XBee ZigBee/802.15.4 RF Modules Supported:
 - [XBee® ZB](http://www.digi.com/products/wireless-wired-embedded-solutions/zigbee-rf-modules/zigbee-mesh-module/xbee-zb-module) (aka XBZB).
 - [XBee® 802.15.4](http://www.digi.com/products/wireless-wired-embedded-solutions/zigbee-rf-modules/point-multipoint-rfmodules/xbee-series1-module) (aka XB802).
 
@@ -62,7 +62,7 @@ To understand the network setting in XBDM module see the [user manual](http://ft
 ...
 ```
 
-### Basic XB900HP, XB868, XBDM, XBZB (Sending Data)
+### Basic Sending Data (with XB900HP, XB868, XBDM, XBZB)
 ```c++
 ...
 	// Sending { 0xDA, 0x7A } to address64: 0x0013A200 0x403E0F30
@@ -80,6 +80,6 @@ To understand the network setting in XBDM module see the [user manual](http://ft
     
     // Getting data to print a summary
     XBeeApiFrame* xbApiFrame = &xbee_ng.getApiFrame();
-    xbApiFrame->printSumary(Serial);
+    xbApiFrame->printSummary(Serial);
 ...
 ```
