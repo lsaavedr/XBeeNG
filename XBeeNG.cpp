@@ -247,18 +247,30 @@ XBeeApiFrame::printSumary(Stream& strm) {
         strm.print(F("Options:")); strm.println(pt->getOptions(), HEX);
         strm.print(F("Number of Samples:")); strm.println(pt->getNSamples(), HEX);
         uint16_t digitalMask = pt->getDigitalMask(); uint8_t* digitalMaskPtr = (uint8_t*)&digitalMask;
-        strm.print(F("Digital Mask:")); for (uint8_t i = 0; i < 2; i++) printHex(strm, digitalMaskPtr[i]);
+        strm.print(F("Digital Mask:"));
+        for (uint8_t i = 0; i < 2; i++) {
+            printHex(strm, digitalMaskPtr[i]);
+            strm.print(F(" "));
+        }
         strm.println();
-        uint16_t analogMask = pt->getAnalogMask(); uint8_t* analogMaskPtr = (uint8_t*)&analogMask;
-        strm.print(F("Analog Mask:")); for (uint8_t i = 0; i < 2; i++) printHex(strm, analogMaskPtr[i]);
-        strm.println();
-        strm.print(F("Digital Samples:")); strm.println(pt->getOptions(), BYTE);
+        strm.print(F("Analog Mask:")); strm.println(pt->getAnalogMask(), HEX);
+        uint16_t digitalSamples = pt->getDigitalSamples(); uint8_t* digitalSamplesPtr = (uint8_t*)&digitalSamples;
+        strm.print(F("Digital Samples:"));
+        for (uint8_t i = 0; i < 2; i++) {
+            printHex(strm, digitalSamplesPtr[i]);
+            if (i != 1) strm.print(F(" "));
+            else strm.println();
+        }
         uint16_t analogSamplesLength = pt->getAnalogSamplesLength();
         uint16_t* analogSamples = pt->getAnalogSamples();
         if (analogSamplesLength > 0) strm.print(F("Analog Samples:"));
         for (int i = 0; i < analogSamplesLength; i++) {
-            strm.print(analogSamples[i]);
-            if (i != (analogSamplesLength-1)) strm.print(F(" "));
+            uint8_t* analogSample = (uint8_t*)&(analogSamples[i]);
+            for (uint8_t j = 0; j < 2; j++) {
+                printHex(strm, analogSample[j]);
+                if (j != 1) strm.print(F(" "));
+            }
+            if (i != (analogSamplesLength-1)) strm.print(F("  "));
             else strm.println();
         }
         strm.println();
@@ -370,6 +382,37 @@ TxRxFrameIdDescription::setAddress16(const uint16_t& address16) {
 }
 
 
+#ifdef XBEENG_WITH_EXTRAS
+AtCommand::AtCommand(const uint8_t& frameId, const std::initializer_list<uint8_t>& data) {
+    uint16_t dataLength = data.size();
+
+    _cmdId = AT_COMMAND;
+    _cmdData = new uint8_t[FRAME_ID_HEAD+dataLength];
+
+    setCmdDataLength(FRAME_ID_HEAD+dataLength);
+    setFrameId(frameId);
+
+    uint16_t i = 0;
+    for (uint8_t data_i : data) _cmdData[FRAME_ID_HEAD+(i++)] = data_i;
+
+    setChecksum();
+}
+AtCommand::AtCommand(const uint8_t& frameId, const char (&cmd)[3], const std::initializer_list<uint8_t>& param) {
+    uint16_t paramLength = param.size();
+
+    _cmdId = AT_COMMAND;
+    _cmdData = new uint8_t[AT_COMMAND_HEAD+paramLength];
+
+    setCmdDataLength(AT_COMMAND_HEAD+paramLength);
+    setFrameId(frameId);
+    setCmd(cmd, false);
+
+    uint16_t i = 0;
+    for (uint8_t param_i : param) _cmdData[AT_COMMAND_HEAD+(i++)] = param_i;
+
+    setChecksum();
+}
+#endif
 AtCommand::AtCommand(const uint8_t& frameId, const uint8_t* data, const uint16_t& dataLength) {
     //assert (dataLength >= 2);
 
@@ -379,8 +422,7 @@ AtCommand::AtCommand(const uint8_t& frameId, const uint8_t* data, const uint16_t
     setCmdDataLength(FRAME_ID_HEAD+dataLength);
     setFrameId(frameId);
 
-    for (uint16_t i = 0; i < dataLength; i++)
-        _cmdData[FRAME_ID_HEAD+i] = data[i];
+    for (uint16_t i = 0; i < dataLength; i++) _cmdData[FRAME_ID_HEAD+i] = data[i];
 
     setChecksum();
 }
@@ -396,8 +438,7 @@ AtCommand::AtCommand(const uint8_t& frameId, const char* data) {
     setCmdDataLength(FRAME_ID_HEAD+dataLength);
     setFrameId(frameId);
 
-    for (uint16_t i = 0; i < dataLength; i++)
-        _cmdData[FRAME_ID_HEAD+i] = data[i];
+    for (uint16_t i = 0; i < dataLength; i++) _cmdData[FRAME_ID_HEAD+i] = data[i];
 
     setChecksum();
 }
@@ -437,6 +478,19 @@ void
 AtCommand::setCmd(const char (&cmd)[3]) {
     setCmd(cmd, true);
 }
+#ifdef XBEENG_WITH_EXTRAS
+void
+AtCommand::setCmd(const char (&cmd)[3], const std::initializer_list<uint8_t>& param,
+    const bool& performChecksum) {
+    setCmd(cmd, false);
+    setParam(param, false);
+    if (performChecksum) setChecksum();
+}
+void
+AtCommand::setCmd(const char (&cmd)[3], const std::initializer_list<uint8_t>& param) {
+    setCmd(cmd, param, true);
+}
+#endif
 
 uint8_t*
 AtCommand::getParam() { return &(_cmdData[3]); }
@@ -454,8 +508,7 @@ AtCommand::setParam(const uint8_t* param, const uint16_t& paramLength,
         for (uint16_t i = 0; i < AT_COMMAND_HEAD; i++) _cmdData[i] = head[i];
     }
 
-    for (uint16_t i = 0; i < paramLength; i++)
-        _cmdData[AT_COMMAND_HEAD+i] = param[i];
+    for (uint16_t i = 0; i < paramLength; i++) _cmdData[AT_COMMAND_HEAD+i] = param[i];
 
     if (performChecksum) setChecksum();
 }
@@ -491,6 +544,32 @@ void
 AtCommand::setParam(const char* param) {
     setParam(param, true);
 }
+#ifdef XBEENG_WITH_EXTRAS
+void AtCommand::setParam(const std::initializer_list<uint8_t>& param,
+    const bool& performChecksum) {
+    uint16_t paramLength = param.size();
+
+    if ((getCmdDataLength() - AT_COMMAND_HEAD) != paramLength) {
+        uint8_t head[AT_COMMAND_HEAD];
+        for (uint16_t i = 0; i < AT_COMMAND_HEAD; i++) head[i] = _cmdData[i];
+
+        delete[] _cmdData;
+        _cmdData = new uint8_t[AT_COMMAND_HEAD+paramLength];
+        setCmdDataLength(AT_COMMAND_HEAD+paramLength);
+
+        for (uint16_t i = 0; i < AT_COMMAND_HEAD; i++) _cmdData[i] = head[i];
+    }
+
+
+    uint16_t i = 0;
+    for (uint8_t param_i : param) _cmdData[AT_COMMAND_HEAD+(i++)] = param_i;
+
+    if (performChecksum) setChecksum();
+}
+void AtCommand::setParam(const std::initializer_list<uint8_t>& param) {
+    setParam(param, true);
+}
+#endif
 uint16_t
 AtCommand::getParamLength() { return getCmdDataLength() - AT_COMMAND_HEAD; }
 
@@ -577,6 +656,39 @@ TxRequest::TxRequest(const uint8_t& frameId,
     TxRequest(frameId, address64Msb, address64Lsb, 0, 0, data) {}
 TxRequest::TxRequest(const uint8_t& frameId, const char* data):
     TxRequest(frameId, 0, BROADCAST_ADDRESS64, data) {}
+#ifdef XBEENG_WITH_EXTRAS
+TxRequest::TxRequest(const uint8_t& frameId,
+    const uint32_t& address64Msb, const uint32_t& address64Lsb,
+    const uint16_t& address16, const uint8_t& broadcast, const uint8_t& options,
+    const std::initializer_list<uint8_t>& data) {
+    uint16_t dataLength = data.size();
+
+    _cmdId = TX_REQUEST;
+    _cmdData = new uint8_t[TX_REQUEST_HEAD+dataLength];
+
+    setCmdDataLength(TX_REQUEST_HEAD+dataLength);
+    setFrameId(frameId);
+    setAddress64(address64Msb, address64Lsb, false);
+    setAddress16(address16, false);
+    setBroadcast(broadcast, false);
+    setOptions(options, false);
+    setData(data, false);
+    setChecksum();
+}
+TxRequest::TxRequest(const uint8_t& frameId,
+    const uint32_t& address64Msb, const uint32_t& address64Lsb,
+    const uint8_t& broadcast, const uint8_t& options,
+    const std::initializer_list<uint8_t>& data):
+    TxRequest(frameId, address64Msb, address64Lsb,
+        BROADCAST_ADDRESS16, broadcast, options, data) {}
+TxRequest::TxRequest(const uint8_t& frameId,
+    const uint32_t& address64Msb, const uint32_t& address64Lsb,
+    const std::initializer_list<uint8_t>& data):
+    TxRequest(frameId, address64Msb, address64Lsb, 0, 0, data) {}
+TxRequest::TxRequest(const uint8_t& frameId,
+    const std::initializer_list<uint8_t>& data):
+    TxRequest(frameId, 0, BROADCAST_ADDRESS64, data) {}
+#endif
 
 uint8_t
 TxRequest::getBroadcast() { return _cmdData[15-CMD_DATA_OFFSET]; }
@@ -628,6 +740,33 @@ void
 TxRequest::setData(const uint8_t* data, const uint16_t& dataLength) {
     setData(data, dataLength, true);
 }
+#ifdef XBEENG_WITH_EXTRAS
+void
+TxRequest::setData(const std::initializer_list<uint8_t>& data, const bool& performChecksum) {
+    uint16_t dataLength = data.size();
+
+    if ((getCmdDataLength() - TX_REQUEST_HEAD) != dataLength) {
+        uint8_t head[TX_REQUEST_HEAD];
+        for (uint16_t i = 0; i < TX_REQUEST_HEAD; i++) head[i] = _cmdData[i];
+
+        delete[] _cmdData;
+        _cmdData = new uint8_t[TX_REQUEST_HEAD+dataLength];
+        setCmdDataLength(TX_REQUEST_HEAD+dataLength);
+
+        for (uint16_t i = 0; i < TX_REQUEST_HEAD; i++) _cmdData[i] = head[i];
+    }
+
+
+    uint16_t i = 0;
+    for (uint8_t data_i : data) _cmdData[TX_REQUEST_HEAD+(i++)] = data_i;
+
+    if (performChecksum) setChecksum();
+}
+void
+TxRequest::setData(const std::initializer_list<uint8_t>& data) {
+    setData(data, true);
+}
+#endif
 uint16_t
 TxRequest::getDataLength() { return getCmdDataLength() - TX_REQUEST_HEAD; }
 
@@ -1135,11 +1274,20 @@ RxDataSample::getDigitalMask() { return *((uint16_t*)&(_cmdData[16-CMD_DATA_OFFS
 uint8_t
 RxDataSample::getAnalogMask() { return _cmdData[18-CMD_DATA_OFFSET]; }
 uint16_t
-RxDataSample::getDigitalSamples() { return *((uint16_t*)&(_cmdData[19-CMD_DATA_OFFSET])); }
+RxDataSample::getDigitalSamples() {
+    if (getDigitalMask() > 0) return *((uint16_t*)&(_cmdData[19-CMD_DATA_OFFSET]));
+    return 0;
+}
 uint16_t*
-RxDataSample::getAnalogSamples() { return ((uint16_t*)&(_cmdData[21-CMD_DATA_OFFSET])); }
+RxDataSample::getAnalogSamples() {
+    if (getDigitalMask() > 0) return ((uint16_t*)&(_cmdData[21-CMD_DATA_OFFSET]));
+    return ((uint16_t*)&(_cmdData[19-CMD_DATA_OFFSET]));
+}
 uint16_t
-RxDataSample::getAnalogSamplesLength() { return getCmdDataLength() - RX_DATA_SAMPLE_HEAD; }
+RxDataSample::getAnalogSamplesLength() {
+    if (getDigitalMask() > 0) return (getCmdDataLength() - RX_DATA_SAMPLE_HEAD)/2;
+    return (2 + getCmdDataLength() - RX_DATA_SAMPLE_HEAD)/2;
+}
 
 
 uint16_t

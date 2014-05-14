@@ -30,6 +30,10 @@
 
 #define XBEENG_WITH_EXTRAS
 
+#ifdef XBEENG_WITH_EXTRAS
+#include <initializer_list>
+#endif
+
 // set to ATAP value of XBee. AP=2 is recommended
 #define ATAP 2
 
@@ -265,6 +269,10 @@ protected:
 #define AT_COMMAND_HEAD 3
 class AtCommand : public FrameIdDescription {
 public:
+#ifdef XBEENG_WITH_EXTRAS
+    AtCommand(const uint8_t& frameId, const std::initializer_list<uint8_t>& data);
+    AtCommand(const uint8_t& frameId, const char (&cmd)[3], const std::initializer_list<uint8_t>& param);
+#endif
     AtCommand(const uint8_t& frameId, const uint8_t* data, const uint16_t& dataLength);
     AtCommand(const uint8_t& frameId, const char* data);
 
@@ -277,12 +285,20 @@ public:
     uint8_t* getParam();
     void setParam(const uint8_t* param, const uint16_t& paramLengt);
     void setParam(const char* param);
+#ifdef XBEENG_WITH_EXTRAS
+    void setCmd(const char (&cmd)[3], const std::initializer_list<uint8_t>& param);
+    void setParam(const std::initializer_list<uint8_t>& param);
+#endif
     uint16_t getParamLength();
 private:
     void setCmd(const uint16_t& cmd, const bool& performChecksum);
     void setCmd(const char (&cmd)[3], const bool& performChecksum);
     void setParam(const uint8_t* param, const uint16_t& paramLength, const bool& performChecksum);
     void setParam(const char* param, const bool& performChecksum);
+#ifdef XBEENG_WITH_EXTRAS
+    void setCmd(const char (&cmd)[3], const std::initializer_list<uint8_t>& param, const bool& performChecksum);
+    void setParam(const std::initializer_list<uint8_t>& param, const bool& performChecksum);
+#endif
 };
 
 class AtQueueCommand : public AtCommand {
@@ -324,6 +340,21 @@ public:
         const char* data);
     TxRequest(const uint8_t& frameId, const uint8_t* data, const uint16_t& dataLength);
     TxRequest(const uint8_t& frameId, const char* data);
+#ifdef XBEENG_WITH_EXTRAS
+    TxRequest(const uint8_t& frameId,
+        const uint32_t& address64Msb, const uint32_t& address64Lsb,
+        const uint16_t& address16, const uint8_t& broadcast, const uint8_t& options,
+        const std::initializer_list<uint8_t>& data);
+    TxRequest(const uint8_t& frameId,
+        const uint32_t& address64Msb, const uint32_t& address64Lsb,
+        const uint8_t& broadcast, const uint8_t& options,
+        const std::initializer_list<uint8_t>& data);
+    TxRequest(const uint8_t& frameId,
+        const uint32_t& address64Msb, const uint32_t& address64Lsb,
+        const std::initializer_list<uint8_t>& data);
+    TxRequest(const uint8_t& frameId,
+        const std::initializer_list<uint8_t>& data);
+#endif
 
     uint8_t getBroadcast();
     void setBroadcast(const uint8_t& broadcast);
@@ -334,12 +365,18 @@ public:
     uint8_t* getData();
     void setData(const uint8_t* data, const uint16_t& dataLength);
     void setData(const char* data);
+#ifdef XBEENG_WITH_EXTRAS
+    void setData(const std::initializer_list<uint8_t>& data);
+#endif
     uint16_t getDataLength();
 private:
     void setBroadcast(const uint8_t& broadcast, const bool& performChecksum);
     void setOptions(const uint8_t& options, const bool& performChecksum);
     void setData(const uint8_t* data, const uint16_t& dataLength, const bool& performChecksum);
     void setData(const char* data, const bool& performChecksum);
+#ifdef XBEENG_WITH_EXTRAS
+    void setData(const std::initializer_list<uint8_t>& data, const bool& performChecksum);
+#endif
 };
 
 #define EXPLICIT_TX_REQUEST_HEAD 19
