@@ -217,7 +217,7 @@ public:
 #ifdef XBEENG_WITH_EXTRAS
     /*
      */
-    void printSumary(Stream& strm);
+    void printSummary(Stream& strm);
 #endif
 protected:
     uint8_t _cmdId;

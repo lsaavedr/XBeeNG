@@ -100,7 +100,7 @@ XBeeApiFrame::setErrorCode(const uint8_t& errorCode) { _errorCode = errorCode; }
 
 #ifdef XBEENG_WITH_EXTRAS
 void
-XBeeApiFrame::printSumary(Stream& strm) {
+XBeeApiFrame::printSummary(Stream& strm) {
     strm.println();
     strm.print(F("cmdID:")); strm.println(this->getCmdId(),HEX);
 
