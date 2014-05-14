@@ -1,19 +1,23 @@
-digimesh:
-	RouteInformationPacket 		0x8D
-	AggregateAddressingUpdate	0x8E
-ZB:
-	CreateSourceRoute			0x21
-	RxSensorRead				0x94
-	OtaFirmwareUpdateStatus		0xA0
-	RxRouteRecord				0xA1
-	RxMtoRouteRequest			0xA3
-	RxDeviceAuthenticated		0xA2
-	RegisterJoiningDeviceStatus	0xA4
-	RegisterJoiningDevice		0x24
-802.15.4:
-	TxRequest64					0x00
-	TxRequest16					0x01
-	RxIndicator64				0x80
-	RxIndicator16				0x81
-	RXDataSample64				0x82
-	RXDataSample16				0x83
+## ToDo List with API Frames to be implemented:
+
+### In XB900HP and XBDM:
+- 0x8D - RouteInformationPacket
+- 0x8E - AggregateAddressingUpdate
+
+### In XBZB:
+- 0x21 - CreateSourceRoute
+- 0x94 - RxSensorRead
+- 0xA0 - OtaFirmwareUpdateStatus
+- 0xA1 - RxRouteRecord
+- 0xA3 - RxMtoRouteRequest
+- 0xA2 - RxDeviceAuthenticated
+- 0xA4 - RegisterJoiningDeviceStatus
+- 0x24 - RegisterJoiningDevice
+
+### In XB802:
+- 0x00 - TxRequest64
+- 0x01 - TxRequest16
+- 0x80 - RxResponse64
+- 0x81 - RxResponse16
+- 0x82 - RxDataSample64
+- 0x83 - RxDataSample16
