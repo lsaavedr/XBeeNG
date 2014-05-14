@@ -43,11 +43,11 @@ To understand the network setting in XB900HP module see the [user manual](http:/
     atCmd.setCmd("ID", { 0x33, 0x31 });
     xbee_ng.send(atCmd);
 
-	// Set Channel Mask [CM] (range: 0x1FFFFFF-0xFFFFFFFFFFFFFFFF)
+	// Set the Channel Mask [CM] (range: 0x1FFFFFF-0xFFFFFFFFFFFFFFFF)
     atCmd.setCmd("CM", {0x0F, 0xF5, 0xFF, 0xFF});
     xbee_ng.send(atCmd);
 
-	// Set Power Label [PL] (range: 0-4)
+	// Set the Power Label [PL] (range: 0-4)
     atCmd.setCmd("PL", { 0x04 });
     xbee_ng.send(atCmd);
 ...
