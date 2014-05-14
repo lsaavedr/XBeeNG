@@ -80,6 +80,6 @@ To understand the network setting in XBDM module see the [user manual](http://ft
     
     // Getting data to print a summary
     XBeeApiFrame* xbApiFrame = &xbee_ng.getApiFrame();
-    xbApiFrame->printSumary(Serial);
+    xbApiFrame->printSummary(Serial);
 ...
 ```
