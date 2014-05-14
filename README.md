@@ -31,7 +31,7 @@ void setup() {
 ```
 
 ### Basic XB900HP Network Settings
-To understand the network setting in XB900HP module see the [user manual](http://ftp1.digi.com/support/documentation/90002173_M.pdf) (pag. 32).
+To understand the network setting in XB900HP module see the [user manual](http://ftp1.digi.com/support/documentation/90002173_M.pdf) (pag. 33).
 ```c++
 ...
 	// Set the Preamble ID [HP] (range: 0-7)
