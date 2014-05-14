@@ -62,7 +62,7 @@ To understand the network setting in XBDM module see the [user manual](http://ft
 ...
 ```
 
-### Basic XB900HP, XB868, XBDM, XBZB (Sending Data)
+### Basic Sending Data (with XB900HP, XB868, XBDM, XBZB)
 ```c++
 ...
 	// Sending { 0xDA, 0x7A } to address64: 0x0013A200 0x403E0F30
@@ -71,7 +71,7 @@ To understand the network setting in XBDM module see the [user manual](http://ft
 ...
 ```
 
-### Basic Consumption Response
+### Basic Consumption Response (with XB900HP, XB868, XBDM, XBZB)
 ```c++
 ...
 	// Consumption response
