@@ -59,7 +59,86 @@
 <a href="http://www.digi.com/products/wireless-wired-embedded-solutions/zigbee-rf-modules/zigbee-mesh-module/xbee-zb-module">XBee® ZB</a> (aka XBZB).</li>
 <li>
 <a href="http://www.digi.com/products/wireless-wired-embedded-solutions/zigbee-rf-modules/point-multipoint-rfmodules/xbee-series1-module">XBee® 802.15.4</a> (aka XB802).</li>
-</ul>
+</ul><h2>
+<a name="examples" class="anchor" href="#examples"><span class="octicon octicon-link"></span></a>Examples</h2>
+
+<h3>
+<a name="basic-setup" class="anchor" href="#basic-setup"><span class="octicon octicon-link"></span></a>Basic Setup:</h3>
+
+<div class="highlight highlight-c++"><pre><span class="c1">// Create an XBee object at the top of your sketch</span>
+<span class="n">XBee</span> <span class="n">xbee_ng</span> <span class="o">=</span> <span class="n">XBee</span><span class="p">();</span>
+
+<span class="kt">void</span> <span class="nf">setup</span><span class="p">()</span> <span class="p">{</span>
+    <span class="c1">// Start the serial port</span>
+    <span class="n">Serial3</span><span class="p">.</span><span class="n">begin</span><span class="p">(</span><span class="mi">9600</span><span class="p">);</span>
+
+    <span class="c1">// Tell XBee to use this Hardware Serial. It's also possible to use SoftwareSerial</span>
+    <span class="n">xbee_ng</span><span class="p">.</span><span class="n">begin</span><span class="p">(</span><span class="n">Serial3</span><span class="p">);</span>
+
+    <span class="c1">// Others Settings</span>
+    <span class="p">...</span>
+<span class="p">}</span>
+</pre></div>
+
+<h3>
+<a name="basic-xb900hp-network-settings" class="anchor" href="#basic-xb900hp-network-settings"><span class="octicon octicon-link"></span></a>Basic XB900HP Network Settings</h3>
+
+<p>To understand the network setting in XB900HP module see the <a href="http://ftp1.digi.com/support/documentation/90002173_M.pdf">user manual</a> (pag. 33).</p>
+
+<div class="highlight highlight-c++"><pre><span class="p">...</span>
+    <span class="c1">// Set the Preamble ID [HP] (range: 0-7)</span>
+    <span class="n">AtCommand</span> <span class="n">atCmd</span> <span class="o">=</span> <span class="n">AtCommand</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="s">"HP"</span><span class="p">,</span> <span class="p">{</span> <span class="mh">0x05</span> <span class="p">});</span><span class="c1">// FrameID=1, cmd="HP", param={ 0x05 }</span>
+    <span class="n">xbee_ng</span><span class="p">.</span><span class="n">send</span><span class="p">(</span><span class="n">atCmd</span><span class="p">);</span>
+
+    <span class="c1">// Set the Network ID [ID] (range: 0-0x7FFF)</span>
+    <span class="n">atCmd</span><span class="p">.</span><span class="n">setCmd</span><span class="p">(</span><span class="s">"ID"</span><span class="p">,</span> <span class="p">{</span> <span class="mh">0x33</span><span class="p">,</span> <span class="mh">0x31</span> <span class="p">});</span>
+    <span class="n">xbee_ng</span><span class="p">.</span><span class="n">send</span><span class="p">(</span><span class="n">atCmd</span><span class="p">);</span>
+
+    <span class="c1">// Set the Channel Mask [CM] (range: 0x1FFFFFF-0xFFFFFFFFFFFFFFFF)</span>
+    <span class="n">atCmd</span><span class="p">.</span><span class="n">setCmd</span><span class="p">(</span><span class="s">"CM"</span><span class="p">,</span> <span class="p">{</span><span class="mh">0x0F</span><span class="p">,</span> <span class="mh">0xF5</span><span class="p">,</span> <span class="mh">0xFF</span><span class="p">,</span> <span class="mh">0xFF</span><span class="p">});</span>
+    <span class="n">xbee_ng</span><span class="p">.</span><span class="n">send</span><span class="p">(</span><span class="n">atCmd</span><span class="p">);</span>
+<span class="p">...</span>
+</pre></div>
+
+<h3>
+<a name="basic-xbdm-network-settings" class="anchor" href="#basic-xbdm-network-settings"><span class="octicon octicon-link"></span></a>Basic XBDM Network Settings</h3>
+
+<p>To understand the network setting in XBDM module see the <a href="http://ftp1.digi.com/support/documentation/90000991_K.pdf">user manual</a> (pag. 41).</p>
+
+<div class="highlight highlight-c++"><pre><span class="p">...</span>
+    <span class="c1">// Set the Network ID [ID] (range: 0-0x7FFF)</span>
+    <span class="n">AtCommand</span> <span class="n">atCmd</span> <span class="o">=</span> <span class="n">AtCommand</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="s">"ID"</span><span class="p">,</span> <span class="p">{</span> <span class="mh">0x33</span><span class="p">,</span> <span class="mh">0x31</span> <span class="p">});</span><span class="c1">// FrameID=1, cmd="ID", param={ 0x33, 0x31 }</span>
+    <span class="n">xbee_ng</span><span class="p">.</span><span class="n">send</span><span class="p">(</span><span class="n">atCmd</span><span class="p">);</span>
+
+    <span class="c1">// Set the Operating Channel [CH] (range: 0x0B-0x1A for XBee, and 0x0c-0x17 for XBee-PRO)</span>
+    <span class="n">atCmd</span><span class="p">.</span><span class="n">setCmd</span><span class="p">(</span><span class="s">"CH"</span><span class="p">,</span> <span class="p">{</span> <span class="mh">0x0F</span> <span class="p">});</span>
+    <span class="n">xbee_ng</span><span class="p">.</span><span class="n">send</span><span class="p">(</span><span class="n">atCmd</span><span class="p">);</span>
+<span class="p">...</span>
+</pre></div>
+
+<h3>
+<a name="basic-xb900hp-xb868-xbdm-xbzb-sending-data" class="anchor" href="#basic-xb900hp-xb868-xbdm-xbzb-sending-data"><span class="octicon octicon-link"></span></a>Basic XB900HP, XB868, XBDM, XBZB (Sending Data)</h3>
+
+<div class="highlight highlight-c++"><pre><span class="p">...</span>
+    <span class="c1">// Sending { 0xDA, 0x7A } to address64: 0x0013A200 0x403E0F30</span>
+    <span class="n">TxRequest</span> <span class="n">txReq</span> <span class="o">=</span> <span class="n">TxRequest</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mh">0x0013A200</span><span class="p">,</span> <span class="mh">0x403E0F30</span><span class="p">,</span> <span class="p">{</span> <span class="mh">0xDA</span><span class="p">,</span> <span class="mh">0x7A</span> <span class="p">}</span> <span class="p">);</span>
+    <span class="n">xbee_ng</span><span class="p">.</span><span class="n">send</span><span class="p">(</span><span class="n">txReq</span><span class="p">);</span>
+<span class="p">...</span>
+</pre></div>
+
+<h3>
+<a name="basic-consumption-response" class="anchor" href="#basic-consumption-response"><span class="octicon octicon-link"></span></a>Basic Consumption Response</h3>
+
+<div class="highlight highlight-c++"><pre><span class="p">...</span>
+    <span class="c1">// Consumption response</span>
+    <span class="n">xbee_ng</span><span class="p">.</span><span class="n">readPacket</span><span class="p">();</span> <span class="c1">// Removing old data for consuming new data</span>
+    <span class="n">xbee_ng</span><span class="p">.</span><span class="n">readPacketUntilAvailable</span><span class="p">();</span> <span class="c1">// Force read a new valid data</span>
+
+    <span class="c1">// Getting data to print a summary</span>
+    <span class="n">XBeeApiFrame</span><span class="o">*</span> <span class="n">xbApiFrame</span> <span class="o">=</span> <span class="o">&amp;</span><span class="n">xbee_ng</span><span class="p">.</span><span class="n">getApiFrame</span><span class="p">();</span>
+    <span class="n">xbApiFrame</span><span class="o">-&gt;</span><span class="n">printSumary</span><span class="p">(</span><span class="n">Serial</span><span class="p">);</span>
+<span class="p">...</span>
+</pre></div>
         </article>
       </div>
     </div>
