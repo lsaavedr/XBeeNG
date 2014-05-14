@@ -35,22 +35,20 @@ To understand the network setting in XB900HP module see the [user manual](ftp://
 ```c++
 ...
 	// Set the Preamble ID [HP] (range: 0-7)
+    // FrameID=1, cmd="HP", param={ 0x05 }
 	AtCommand atCmd = AtCommand(1, "HP", { 0x05 });
     xbee_ng.send(atCmd);
 
 	// Set the Network ID [ID] (range: 0-0x7FFF)
-    atCmd.setCmd("ID");
-    atCmd.setParam({ 0x33, 0x31 });
+    atCmd.setCmd("ID", { 0x33, 0x31 });
     xbee_ng.send(atCmd);
 
 	// Set Channel Mask [CM] (range: 0x1FFFFFF-0xFFFFFFFFFFFFFFFF)
-    atCmd.setCmd("CM");
-    atCmd.setParam({0x0F, 0xF5, 0xFF, 0xFF});
+    atCmd.setCmd("CM", {0x0F, 0xF5, 0xFF, 0xFF});
     xbee_ng.send(atCmd);
 
 	// Set Power Label [PL] (range: 0-4)
-    atCmd.setCmd("PL");
-    atCmd.setParam({ 0x04 });
+    atCmd.setCmd("PL", { 0x04 });
     xbee_ng.send(atCmd);
 ...
 ```
