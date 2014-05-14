@@ -51,5 +51,6 @@ To understand the network setting in XB900HP module see the [user manual](ftp://
 	// Set Power Label [PL] (range: 0-4)
     atCmd.setCmd("PL");
     atCmd.setParam({ 0x04 });
+    xbee_ng.send(atCmd);
 ...
 ```
