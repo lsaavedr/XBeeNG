@@ -10,7 +10,3 @@ Arduino library for communicating with XBees in API=2 mode, with sopport for bot
 ### XBee ZigBee/802.15.4 RF Modules
 - [XBee® ZB](http://www.digi.com/products/wireless-wired-embedded-solutions/zigbee-rf-modules/zigbee-mesh-module/xbee-zb-module) (aka XBZB).
 - [XBee® 802.15.4](http://www.digi.com/products/wireless-wired-embedded-solutions/zigbee-rf-modules/point-multipoint-rfmodules/xbee-series1-module) (aka XB802).
-
-
-
-
