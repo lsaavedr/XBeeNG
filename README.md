@@ -61,3 +61,23 @@ To understand the network setting in XBDM module see the [user manual](http://ft
     xbee_ng.send(atCmd);
 ...
 ```
+
+### Basic XB900HP, XB868, XBDM, XBZB (Sending Data)
+```c++
+...
+	// Sending { 0xDA, 0x7A } to address64: 0x0013A200 0x403E0F30
+	TxRequest txReq = TxRequest(2, 0x0013A200, 0x403E0F30, { 0xDA, 0x7A } );
+    xbee_ng.send(txReq);
+...
+```
+
+### Basic Consuming Responses
+```c++
+	// Consuming response
+    xbee_ng.readPacket(); // Removing old data to consuming new data
+    xbee_ng.readPacketUntilAvailable(); // Force read a valid new data
+    
+    // Getting data
+    XBeeApiFrame* xbApiFrame = &xbee_ng.getApiFrame();
+    xbApiFrame->printSumary(Serial);
+```
