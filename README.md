@@ -35,8 +35,7 @@ To understand the network setting in XB900HP module see the [user manual](http:/
 ```c++
 ...
 	// Set the Preamble ID [HP] (range: 0-7)
-    // FrameID=1, cmd="HP", param={ 0x05 }
-	AtCommand atCmd = AtCommand(1, "HP", { 0x05 });
+	AtCommand atCmd = AtCommand(1, "HP", { 0x05 });// FrameID=1, cmd="HP", param={ 0x05 }
     xbee_ng.send(atCmd);
 
 	// Set the Network ID [ID] (range: 0-0x7FFF)
