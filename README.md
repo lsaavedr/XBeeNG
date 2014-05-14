@@ -71,13 +71,13 @@ To understand the network setting in XBDM module see the [user manual](http://ft
 ...
 ```
 
-### Basic Consuming Responses
+### Basic Consumption Response
 ```c++
-	// Consuming response
-    xbee_ng.readPacket(); // Removing old data to consuming new data
-    xbee_ng.readPacketUntilAvailable(); // Force read a valid new data
+	// Consumption response
+    xbee_ng.readPacket(); // Removing old data for consuming new data
+    xbee_ng.readPacketUntilAvailable(); // Force read a new valid data
     
-    // Getting data
+    // Getting data to print a summary
     XBeeApiFrame* xbApiFrame = &xbee_ng.getApiFrame();
     xbApiFrame->printSumary(Serial);
 ```
