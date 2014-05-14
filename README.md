@@ -47,3 +47,17 @@ To understand the network setting in XB900HP module see the [user manual](http:/
     xbee_ng.send(atCmd);
 ...
 ```
+
+### Basic XBDM Network Settings
+To understand the network setting in XBDM module see the [user manual](http://ftp1.digi.com/support/documentation/90000991_K.pdf) (pag. 41).
+```c++
+...
+	// Set the Network ID [ID] (range: 0-0x7FFF)
+    AtCommand atCmd = AtCommand(1, "ID", { 0x33, 0x31 });// FrameID=1, cmd="ID", param={ 0x33, 0x31 }
+    xbee_ng.send(atCmd);
+
+	// Set the Operating Channel [CH] (range: 0x0B-0x1A for XBee, and 0x0c-0x17 for XBee-PRO)
+    atCmd.setCmd("CH", { 0x0F });
+    xbee_ng.send(atCmd);
+...
+```
