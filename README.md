@@ -71,7 +71,7 @@ To understand the network setting in XBDM module see the [user manual](http://ft
 ...
 ```
 
-### Basic Consumption Response (with XB900HP, XB868, XBDM, XBZB)
+### Basic Consumption Response
 ```c++
 ...
 	// Consumption response
