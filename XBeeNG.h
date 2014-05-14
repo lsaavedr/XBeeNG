@@ -66,7 +66,7 @@
 #define EXPLICIT_TX_REQUEST 0x11
 #define REMOTE_AT_COMMAND 0x17
 #define AT_COMMAND_RESPONSE 0x88
-#define MODEM_STATUS 0x8a
+#define MODEM_STATUS 0x8A
 #define TX_STATUS 0x8B
 
 #define RX_RESPONSE 0x90
@@ -269,32 +269,37 @@ protected:
 #define AT_COMMAND_HEAD 3
 class AtCommand : public FrameIdDescription {
 public:
-#ifdef XBEENG_WITH_EXTRAS
-    AtCommand(const uint8_t& frameId, const std::initializer_list<uint8_t>& data);
-    AtCommand(const uint8_t& frameId, const char (&cmd)[3], const std::initializer_list<uint8_t>& param);
-#endif
     AtCommand(const uint8_t& frameId, const uint8_t* data, const uint16_t& dataLength);
     AtCommand(const uint8_t& frameId, const char* data);
 
     AtCommand(const uint8_t& frameId, const uint16_t& cmd);
     AtCommand(const uint8_t& frameId, const uint16_t& cmd, const uint8_t* param, const uint16_t& paramLength);
 
+#ifdef XBEENG_WITH_EXTRAS
+    AtCommand(const uint8_t& frameId, const std::initializer_list<uint8_t>& data);
+    AtCommand(const uint8_t& frameId, const char (&cmd)[3], const std::initializer_list<uint8_t>& param);
+#endif
+
     uint16_t getCmd();
     void setCmd(const uint16_t& cmd);
     void setCmd(const char (&cmd)[3]);
+
     uint8_t* getParam();
     void setParam(const uint8_t* param, const uint16_t& paramLengt);
     void setParam(const char* param);
+    uint16_t getParamLength();
+
 #ifdef XBEENG_WITH_EXTRAS
     void setCmd(const char (&cmd)[3], const std::initializer_list<uint8_t>& param);
     void setParam(const std::initializer_list<uint8_t>& param);
 #endif
-    uint16_t getParamLength();
+
 private:
     void setCmd(const uint16_t& cmd, const bool& performChecksum);
     void setCmd(const char (&cmd)[3], const bool& performChecksum);
     void setParam(const uint8_t* param, const uint16_t& paramLength, const bool& performChecksum);
     void setParam(const char* param, const bool& performChecksum);
+
 #ifdef XBEENG_WITH_EXTRAS
     void setCmd(const char (&cmd)[3], const std::initializer_list<uint8_t>& param, const bool& performChecksum);
     void setParam(const std::initializer_list<uint8_t>& param, const bool& performChecksum);
@@ -428,14 +433,57 @@ public:
         const uint16_t& clusterId, const uint16_t& profileId,
         const char* data);
 
+#ifdef XBEENG_WITH_EXTRAS
+    ExplicitTxRequest(const uint8_t& frameId,
+        const uint32_t& address64Msb, const uint32_t& address64Lsb,
+        const uint16_t& address16,
+        const uint8_t& sourceEndpoint, const uint8_t& destinationEndpoint,
+        const uint16_t& clusterId, const uint16_t& profileId,
+        const uint8_t& broadcast, const uint8_t& options,
+        const std::initializer_list<uint8_t>& data);
+    ExplicitTxRequest(const uint8_t& frameId,
+        const uint32_t& address64Msb, const uint32_t& address64Lsb,
+        const uint8_t& sourceEndpoint, const uint8_t& destinationEndpoint,
+        const uint16_t& clusterId, const uint16_t& profileId,
+        const uint8_t& broadcast, const uint8_t& options,
+        const std::initializer_list<uint8_t>& data);
+    ExplicitTxRequest(const uint8_t& frameId,
+        const uint32_t& address64Msb, const uint32_t& address64Lsb,
+        const uint8_t& sourceEndpoint, const uint8_t& destinationEndpoint,
+        const uint16_t& clusterId, const uint16_t& profileId,
+        const std::initializer_list<uint8_t>& data);
+    ExplicitTxRequest(const uint8_t& frameId,
+        const uint8_t& sourceEndpoint, const uint8_t& destinationEndpoint,
+        const uint16_t& clusterId, const uint16_t& profileId,
+        const std::initializer_list<uint8_t>& data);
+#endif
+
+    uint8_t getSourceEndpoint();
     void setSourceEndpoint(const uint8_t& sourceEndpoint);
+
+    uint8_t getDestinationEndpoint();
     void setDestinationEndpoint(const uint8_t& destinationEndpoint);
+
+    uint16_t getClusterId();
     void setClusterId(const uint16_t& clusterId);
+
+    uint16_t getProfileId();
     void setProfileId(const uint16_t& profileId);
+
+    uint8_t getBroadcast();
     void setBroadcast(const uint8_t& broadcast);
+
+    uint8_t getOptions();
     void setOptions(const uint8_t& options);
+
+    uint8_t* getData();
     void setData(const uint8_t* data, const uint16_t& dataLength);
     void setData(const char* data);
+#ifdef XBEENG_WITH_EXTRAS
+    void setData(const std::initializer_list<uint8_t>& data);
+#endif
+    uint16_t getDataLength();
+
 private:
     void setSourceEndpoint(const uint8_t& sourceEndpoint, const bool& performChecksum);
     void setDestinationEndpoint(const uint8_t& destinationEndpoint, const bool& performChecksum);
@@ -445,6 +493,9 @@ private:
     void setOptions(const uint8_t& options, const bool& performChecksum);
     void setData(const uint8_t* data, const uint16_t& dataLength, const bool& performChecksum);
     void setData(const char* data, const bool& performChecksum);
+#ifdef XBEENG_WITH_EXTRAS
+    void setData(const std::initializer_list<uint8_t>& data, const bool& performChecksum);
+#endif
 };
 
 #define REMOTE_AT_COMMAND_HEAD 14
@@ -512,6 +563,7 @@ class AtCommandResponse : public FrameIdDescription {
 public:
     uint16_t getCmd();
     uint8_t getStatus();
+
     uint8_t* getData();
     uint16_t getDataLength();
 };
@@ -533,6 +585,7 @@ public:
 class RxResponse : public TxRxXBeeApiFrame {
 public:
     uint8_t getOptions();
+
     uint8_t* getData();
     uint16_t getDataLength();
 };
@@ -542,9 +595,12 @@ class ExplicitRxResponse : public TxRxXBeeApiFrame {
 public:
     uint8_t getSourceEndpoint();
     uint8_t getDestinationEndpoint();
+
     uint16_t getClusterId();
     uint16_t getProfileId();
+
     uint8_t getOptions();
+
     uint8_t* getData();
     uint16_t getDataLength();
 };
@@ -556,9 +612,12 @@ private:
     uint16_t getDataLength();
 public:
     uint8_t getNSamples();
+
     uint16_t getDigitalMask();
     uint8_t getAnalogMask();
+
     uint16_t getDigitalSamples();
+
     uint16_t* getAnalogSamples();
     uint16_t getAnalogSamplesLength();
 };
@@ -577,8 +636,11 @@ public:
     uint16_t getNiLength();
 
     uint16_t getParentAddress16();
+
     uint8_t getType();
+
     uint8_t getSourceEvent();
+
     uint16_t getDigiProfileId();
     uint16_t getDigiManufacturerId();
 
@@ -591,6 +653,7 @@ class RemoteAtCommandResponse : public TxRxFrameIdDescription {
 public:
     uint16_t getCmd();
     uint8_t getStatus();
+
     uint8_t* getData();
     uint16_t getDataLength();
 };
