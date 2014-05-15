@@ -62,6 +62,16 @@ To understand the network setting in XBDM module see the [user manual](http://ft
 ...
 ```
 
+### Basic XB802 Network Settings (P2P)
+To understand the network setting in XB802 module see the [user manual](http://ftp1.digi.com/support/documentation/90000982_N.pdf) (pag. 18).
+```c++
+...
+	// Set the module to operate as an End Device (CE = 0)
+    AtCommand atCmd = AtCommand(1, "CE", { 0x00 });
+
+...
+```
+
 ### Basic Sending Data (with XB900HP, XB868, XBDM, XBZB)
 ```c++
 ...
