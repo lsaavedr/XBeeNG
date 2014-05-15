@@ -173,9 +173,7 @@ XBeeApiFrame::printSummary(Stream& strm) {
         uint16_t cmd = pt->getCmd(); uint8_t* cmdPtr = (uint8_t*)&cmd;
         for (uint8_t i = 0; i < 2; i++) {
             strm.print((char)cmdPtr[i]);
-            if (i != 1) strm.print(F(" "));
-            else strm.print('\r');
-        }
+        } strm.print('\r');
 
         uint8_t* param = pt->getParam();
         uint16_t paramLength = pt->getParamLength();
@@ -240,9 +238,7 @@ XBeeApiFrame::printSummary(Stream& strm) {
         uint16_t cmd = pt->getCmd(); uint8_t* cmdPtr = (uint8_t*)&cmd;
         for (uint8_t i = 0; i < 2; i++) {
             strm.print((char)cmdPtr[i]);
-            if (i != 1) strm.print(F(" "));
-            else strm.print('\r');
-        }
+        } strm.print('\r');
 
         uint8_t* param = pt->getParam();
         uint16_t paramLength = pt->getParamLength();
@@ -260,10 +256,8 @@ XBeeApiFrame::printSummary(Stream& strm) {
         uint16_t cmd = pt->getCmd(); uint8_t* cmdPtr = (uint8_t*)&cmd;
         for (uint8_t i = 0; i < 2; i++) {
             strm.print((char)cmdPtr[i]);
-            if (i != 1) strm.print(F(" "));
-            else strm.print('\r');
-        }
-        strm.print(F("Status: ")); strm.print(pt->getStatus(), HEX); strm.print('\r');
+        } strm.print('\r');
+        strm.print(F("Status: ")); printHex(strm, pt->getStatus()); strm.print('\r');
 
         uint8_t* data = pt->getData();
         uint16_t dataLength = pt->getDataLength();
@@ -277,26 +271,141 @@ XBeeApiFrame::printSummary(Stream& strm) {
     } break;
     case MODEM_STATUS: {
         ModemStatus* pt = static_cast<ModemStatus*>(this);
-        strm.print(F("Status: ")); strm.print(pt->getStatus(), HEX); strm.print('\r');
+        strm.print(F("Status: ")); printHex(strm, pt->getStatus()); strm.print('\r');
         strm.print('\r');
     } break;
     case TX_STATUS: {
         TxStatus* pt = static_cast<TxStatus*>(this);
-        uint16_t address16 = pt->getAddress16(); uint8_t* address16Ptr = (uint8_t*)&address16;
         strm.print(F("Address16: "));
+        uint16_t address16 = pt->getAddress16(); uint8_t* address16Ptr = (uint8_t*)&address16;
         for (uint8_t i = 0; i < 2; i++) {
             printHex(strm, address16Ptr[i]);
             if (i != 1) strm.print(F(" "));
             else strm.print('\r');
         }
-        strm.print(F("Retry Count: ")); strm.print(pt->getRetryCount(), HEX); strm.print('\r');
-        strm.print(F("Delivery Status: ")); strm.print(pt->getDeliveryStatus(), HEX); strm.print('\r');
-        strm.print(F("Discovery Status: ")); strm.print(pt->getDiscoveryStatus(), HEX); strm.print('\r');
+        strm.print(F("Retry Count: ")); printHex(strm, pt->getRetryCount()); strm.print('\r');
+        strm.print(F("Delivery Status: ")); printHex(strm, pt->getDeliveryStatus()); strm.print('\r');
+        strm.print(F("Discovery Status: ")); printHex(strm, pt->getDiscoveryStatus()); strm.print('\r');
+        strm.print('\r');
+    } break;
+    case ROUTE_INFORMATION: {
+        RouteInformation* pt = static_cast<RouteInformation*>(this);
+        strm.print(F("Source Event: ")); printHex(strm, pt->getSourceEvent()); strm.print('\r');
+        strm.print(F("Length: ")); printHex(strm, pt->getLength()); strm.print('\r');
+        strm.print(F("Timestamp: "));
+        uint32_t timestamp = pt->getTimestamp(); uint8_t* timestampPtr = (uint8_t*)&timestamp;
+        for (uint8_t i = 0; i < 4; i++) {
+            printHex(strm, timestampPtr[i]);
+            if (i != 3) strm.print(F(" "));
+            else strm.print('\r');
+        }
+        strm.print(F("ACK Timout Count: ")); printHex(strm, pt->getAckTimoutCount()); strm.print('\r');
+        strm.print(F("Destination Address64Msb: "));
+        uint32_t destinationAddress64Msb = pt->getDestinationAddress64Msb();
+        uint8_t* destinationAddress64MsbPtr = (uint8_t*)&destinationAddress64Msb;
+        for (uint8_t i = 0; i < 4; i++) {
+            printHex(strm, destinationAddress64MsbPtr[i]);
+            if (i != 3) strm.print(F(" "));
+            else strm.print('\r');
+        }
+        strm.print(F("Destination Address64Lsb: "));
+        uint32_t destinationAddress64Lsb = pt->getDestinationAddress64Lsb();
+        uint8_t* destinationAddress64LsbPtr = (uint8_t*)&destinationAddress64Lsb;
+        for (uint8_t i = 0; i < 4; i++) {
+            printHex(strm, destinationAddress64LsbPtr[i]);
+            if (i != 3) strm.print(F(" "));
+            else strm.print('\r');
+        }
+        strm.print(F("Source Address64Msb: "));
+        uint32_t sourceAddress64Msb = pt->getSourceAddress64Msb();
+        uint8_t* sourceAddress64MsbPtr = (uint8_t*)&sourceAddress64Msb;
+        for (uint8_t i = 0; i < 4; i++) {
+            printHex(strm, sourceAddress64MsbPtr[i]);
+            if (i != 3) strm.print(F(" "));
+            else strm.print('\r');
+        }
+        strm.print(F("Source Address64Lsb: "));
+        uint32_t sourceAddress64Lsb = pt->getSourceAddress64Lsb();
+        uint8_t* sourceAddress64LsbPtr = (uint8_t*)&sourceAddress64Lsb;
+        for (uint8_t i = 0; i < 4; i++) {
+            printHex(strm, sourceAddress64LsbPtr[i]);
+            if (i != 3) strm.print(F(" "));
+            else strm.print('\r');
+        }
+        strm.print(F("Responder Address64Msb: "));
+        uint32_t responderAddress64Msb = pt->getResponderAddress64Msb();
+        uint8_t* responderAddress64MsbPtr = (uint8_t*)&responderAddress64Msb;
+        for (uint8_t i = 0; i < 4; i++) {
+            printHex(strm, responderAddress64MsbPtr[i]);
+            if (i != 3) strm.print(F(" "));
+            else strm.print('\r');
+        }
+        strm.print(F("Responder Address64Lsb: "));
+        uint32_t responderAddress64Lsb = pt->getResponderAddress64Lsb();
+        uint8_t* responderAddress64LsbPtr = (uint8_t*)&responderAddress64Lsb;
+        for (uint8_t i = 0; i < 4; i++) {
+            printHex(strm, responderAddress64LsbPtr[i]);
+            if (i != 3) strm.print(F(" "));
+            else strm.print('\r');
+        }
+        strm.print(F("Receiver Address64Msb: "));
+        uint32_t receiverAddress64Msb = pt->getReceiverAddress64Msb();
+        uint8_t* receiverAddress64MsbPtr = (uint8_t*)&receiverAddress64Msb;
+        for (uint8_t i = 0; i < 4; i++) {
+            printHex(strm, receiverAddress64MsbPtr[i]);
+            if (i != 3) strm.print(F(" "));
+            else strm.print('\r');
+        }
+        strm.print(F("Receiver Address64Lsb: "));
+        uint32_t receiverAddress64Lsb = pt->getReceiverAddress64Lsb();
+        uint8_t* receiverAddress64LsbPtr = (uint8_t*)&receiverAddress64Lsb;
+        for (uint8_t i = 0; i < 4; i++) {
+            printHex(strm, receiverAddress64LsbPtr[i]);
+            if (i != 3) strm.print(F(" "));
+            else strm.print('\r');
+        }
+        strm.print('\r');
+    } break;
+    case AGGREGATE_ADDRESSING: {
+        AggregateAddressing* pt = static_cast<AggregateAddressing*>(this);
+        strm.print(F("Format ID: ")); printHex(strm, pt->getFormatId()); strm.print('\r');
+        strm.print(F("New Address64Msb: "));
+        uint32_t newAddress64Msb = pt->getNewAddress64Msb();
+        uint8_t* newAddress64MsbPtr = (uint8_t*)&newAddress64Msb;
+        for (uint8_t i = 0; i < 4; i++) {
+            printHex(strm, newAddress64MsbPtr[i]);
+            if (i != 3) strm.print(F(" "));
+            else strm.print('\r');
+        }
+        strm.print(F("New Address64Lsb: "));
+        uint32_t newAddress64Lsb = pt->getNewAddress64Lsb();
+        uint8_t* newAddress64LsbPtr = (uint8_t*)&newAddress64Lsb;
+        for (uint8_t i = 0; i < 4; i++) {
+            printHex(strm, newAddress64LsbPtr[i]);
+            if (i != 3) strm.print(F(" "));
+            else strm.print('\r');
+        }
+        strm.print(F("Old Address64Msb: "));
+        uint32_t oldAddress64Msb = pt->getOldAddress64Msb();
+        uint8_t* oldAddress64MsbPtr = (uint8_t*)&oldAddress64Msb;
+        for (uint8_t i = 0; i < 4; i++) {
+            printHex(strm, oldAddress64MsbPtr[i]);
+            if (i != 3) strm.print(F(" "));
+            else strm.print('\r');
+        }
+        strm.print(F("Old Address64Lsb: "));
+        uint32_t oldAddress64Lsb = pt->getOldAddress64Lsb();
+        uint8_t* oldAddress64LsbPtr = (uint8_t*)&oldAddress64Lsb;
+        for (uint8_t i = 0; i < 4; i++) {
+            printHex(strm, oldAddress64LsbPtr[i]);
+            if (i != 3) strm.print(F(" "));
+            else strm.print('\r');
+        }
         strm.print('\r');
     } break;
     case RX_RESPONSE: {
         RxResponse* pt = static_cast<RxResponse*>(this);
-        strm.print(F("Options: ")); strm.print(pt->getOptions(), HEX); strm.print('\r');
+        strm.print(F("Options: ")); printHex(strm, pt->getOptions()); strm.print('\r');
 
         uint8_t* data = pt->getData();
         uint16_t dataLength = pt->getDataLength();
@@ -377,7 +486,6 @@ XBeeApiFrame::printSummary(Stream& strm) {
         strm.print(F("Options: ")); printHex(strm, pt->getOptions()); strm.print('\r');
         uint16_t sourceAddress16 = pt->getSourceAddress16(); uint8_t* sourceAddress16Ptr = (uint8_t*)&sourceAddress16;
         strm.print(F("Source Address16: "));
-        strm.print(F("Address16: "));
         for (uint8_t i = 0; i < 2; i++) {
             printHex(strm, sourceAddress16Ptr[i]);
             if (i != 1) strm.print(F(" "));
@@ -444,9 +552,7 @@ XBeeApiFrame::printSummary(Stream& strm) {
         uint16_t cmd = pt->getCmd(); uint8_t* cmdPtr = (uint8_t*)&cmd;
         for (uint8_t i = 0; i < 2; i++) {
             strm.print((char)cmdPtr[i]);
-            if (i != 1) strm.print(F(" "));
-            else strm.print('\r');
-        }
+        } strm.print('\r');
         strm.print(F("Status: ")); printHex(strm, pt->getStatus()); strm.print('\r');
 
         uint8_t* data = pt->getData();
@@ -1476,6 +1582,50 @@ TxStatus::getDeliveryStatus() {
 
 uint8_t
 TxStatus::getDiscoveryStatus() { return _cmdData[9-CMD_DATA_OFFSET]; }
+
+
+uint8_t
+RouteInformation::getSourceEvent() { return _cmdData[4-CMD_DATA_OFFSET]; }
+uint8_t
+RouteInformation::getLength() { return _cmdData[5-CMD_DATA_OFFSET]; }
+uint32_t
+RouteInformation::getTimestamp() { return *((uint32_t*)&(_cmdData[6-CMD_DATA_OFFSET])); }
+uint8_t
+RouteInformation::getAckTimoutCount() { return _cmdData[10-CMD_DATA_OFFSET]; }
+
+uint32_t
+RouteInformation::getDestinationAddress64Msb() { return *((uint32_t*)&(_cmdData[13-CMD_DATA_OFFSET])); }
+uint32_t
+RouteInformation::getDestinationAddress64Lsb() { return *((uint32_t*)&(_cmdData[17-CMD_DATA_OFFSET])); }
+
+uint32_t
+RouteInformation::getSourceAddress64Msb() { return *((uint32_t*)&(_cmdData[21-CMD_DATA_OFFSET])); }
+uint32_t
+RouteInformation::getSourceAddress64Lsb() { return *((uint32_t*)&(_cmdData[25-CMD_DATA_OFFSET])); }
+
+uint32_t
+RouteInformation::getResponderAddress64Msb() { return *((uint32_t*)&(_cmdData[29-CMD_DATA_OFFSET])); }
+uint32_t
+RouteInformation::getResponderAddress64Lsb() { return *((uint32_t*)&(_cmdData[33-CMD_DATA_OFFSET])); }
+
+uint32_t
+RouteInformation::getReceiverAddress64Msb() { return *((uint32_t*)&(_cmdData[37-CMD_DATA_OFFSET])); }
+uint32_t
+RouteInformation::getReceiverAddress64Lsb() { return *((uint32_t*)&(_cmdData[41-CMD_DATA_OFFSET])); }
+
+
+uint8_t
+AggregateAddressing::getFormatId() { return _cmdData[4-CMD_DATA_OFFSET]; }
+
+uint32_t
+AggregateAddressing::getNewAddress64Msb() { return *((uint32_t*)&(_cmdData[5-CMD_DATA_OFFSET])); }
+uint32_t
+AggregateAddressing::getNewAddress64Lsb() { return *((uint32_t*)&(_cmdData[9-CMD_DATA_OFFSET])); }
+
+uint32_t
+AggregateAddressing::getOldAddress64Msb() { return *((uint32_t*)&(_cmdData[13-CMD_DATA_OFFSET])); }
+uint32_t
+AggregateAddressing::getOldAddress64Lsb() { return *((uint32_t*)&(_cmdData[17-CMD_DATA_OFFSET])); }
 
 
 uint8_t

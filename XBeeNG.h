@@ -68,7 +68,8 @@
 #define AT_COMMAND_RESPONSE 0x88
 #define MODEM_STATUS 0x8A
 #define TX_STATUS 0x8B
-
+#define ROUTE_INFORMATION 0x8D
+#define AGGREGATE_ADDRESSING 0x8E
 #define RX_RESPONSE 0x90
 #define EXPLICIT_RX_RESPONSE 0x91
 #define RX_DATA_SAMPLE 0x92
@@ -306,6 +307,7 @@ private:
 #endif
 };
 
+#define AT_QUEUE_COMMAND_HEAD 3
 class AtQueueCommand : public AtCommand {
 public:
     AtQueueCommand(const uint8_t& frameId, const uint8_t* data, const uint16_t& dataLength);
@@ -314,7 +316,6 @@ public:
     AtQueueCommand(const uint8_t& frameId, const uint16_t& cmd);
     AtQueueCommand(const uint8_t& frameId, const uint16_t& cmd, const uint8_t* param, const uint16_t& paramLength);
 };
-
 
 #define TX_REQUEST_HEAD 13
 #define BROADCAST_ADDRESS16 0xfffe
@@ -568,17 +569,52 @@ public:
     uint16_t getDataLength();
 };
 
+#define MODEM_STATUS_HEAD 1
 class ModemStatus : public XBeeApiFrame {
 public:
     uint8_t getStatus();
 };
 
+#define TX_STATUS_HEAD 6
 class TxStatus : public FrameIdDescription {
 public:
     uint16_t getAddress16();
     uint8_t getRetryCount();
     uint8_t getDeliveryStatus();
     uint8_t getDiscoveryStatus();
+};
+
+#define ROUTE_INFORMATION_HEAD 41
+class RouteInformation : public XBeeApiFrame {
+public:
+    uint8_t getSourceEvent();
+    uint8_t getLength();
+    uint32_t getTimestamp();
+    uint8_t getAckTimoutCount();
+
+    uint32_t getDestinationAddress64Msb();
+    uint32_t getDestinationAddress64Lsb();
+
+    uint32_t getSourceAddress64Msb();
+    uint32_t getSourceAddress64Lsb();
+
+    uint32_t getResponderAddress64Msb();
+    uint32_t getResponderAddress64Lsb();
+
+    uint32_t getReceiverAddress64Msb();
+    uint32_t getReceiverAddress64Lsb();
+};
+
+#define AGGREGATE_ADDRESSING_HEAD 17
+class AggregateAddressing : public XBeeApiFrame {
+public:
+    uint8_t getFormatId();
+
+    uint32_t getNewAddress64Msb();
+    uint32_t getNewAddress64Lsb();
+
+    uint32_t getOldAddress64Msb();
+    uint32_t getOldAddress64Lsb();
 };
 
 #define RX_RESPONSE_HEAD 11
