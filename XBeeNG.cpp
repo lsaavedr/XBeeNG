@@ -522,7 +522,7 @@ XBeeApiFrame::printSummary(Stream& strm) {
             if (i != 1) strm.print(F(" "));
             else strm.print('\r');
         }
-        uint16_t digiManufacturerId = pt->getDigiProfileId(); uint8_t* digiManufacturerIdPtr = (uint8_t*)&digiManufacturerId;
+        uint16_t digiManufacturerId = pt->getDigiManufacturerId(); uint8_t* digiManufacturerIdPtr = (uint8_t*)&digiManufacturerId;
         strm.print(F("Digi Manufacturer ID: "));
         for (uint8_t i = 0; i < 2; i++) {
             printHex(strm, digiManufacturerIdPtr[i]);
