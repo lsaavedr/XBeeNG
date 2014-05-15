@@ -105,67 +105,107 @@ XBeeApiFrame::printSummary(Stream& strm) {
     strm.print(F("cmdID: ")); printHex(strm, this->getCmdId()); strm.print('\r');
 
     // All FrameIdDescription descendants:
-    if (_cmdId == AT_COMMAND || _cmdId == AT_QUEUE_COMMAND ||
+    if (_cmdId == TX_64_REQUEST || _cmdId == TX_16_REQUEST ||
+        _cmdId == AT_COMMAND || _cmdId == AT_QUEUE_COMMAND ||
         _cmdId == TX_REQUEST || _cmdId == EXPLICIT_TX_REQUEST ||
         _cmdId == REMOTE_AT_COMMAND || _cmdId == AT_COMMAND_RESPONSE ||
         _cmdId == TX_STATUS || _cmdId == REMOTE_AT_COMMAND_RESPONSE) {
         FrameIdDescription* pt = static_cast<FrameIdDescription*>(this);
         strm.print(F("Frame ID: ")); printHex(strm, pt->getFrameId()); strm.print('\r');
         // All TxRxFrameIdDescription descendants:
-        if (_cmdId == TX_REQUEST || _cmdId == EXPLICIT_TX_REQUEST ||
+        if (_cmdId == TX_64_REQUEST || _cmdId == TX_REQUEST || _cmdId == EXPLICIT_TX_REQUEST ||
             _cmdId == REMOTE_AT_COMMAND || _cmdId == REMOTE_AT_COMMAND_RESPONSE) {
             TxRxFrameIdDescription* xpt = static_cast<TxRxFrameIdDescription*>(this);
-            uint32_t address64Msb = xpt->getAddress64Msb(); uint8_t* address64MsbPtr = (uint8_t*)&address64Msb;
-            uint32_t address64Lsb = xpt->getAddress64Lsb(); uint8_t* address64LsbPtr = (uint8_t*)&address64Lsb;
             strm.print(F("Address64Msb: "));
+            uint32_t address64Msb = xpt->getAddress64Msb(); uint8_t* address64MsbPtr = (uint8_t*)&address64Msb;
             for (uint8_t i = 0; i < 4; i++) {
                 printHex(strm, address64MsbPtr[i]);
                 if (i != 3) strm.print(F(" "));
                 else strm.print('\r');
             }
             strm.print(F("Address64Lsb: "));
+            uint32_t address64Lsb = xpt->getAddress64Lsb(); uint8_t* address64LsbPtr = (uint8_t*)&address64Lsb;
             for (uint8_t i = 0; i < 4; i++) {
                 printHex(strm, address64LsbPtr[i]);
                 if (i != 3) strm.print(F(" "));
                 else strm.print('\r');
             }
-            uint16_t address16 = xpt->getAddress16(); uint8_t* address16Ptr = (uint8_t*)&address16;
-            strm.print(F("Address16: "));
-            for (uint8_t i = 0; i < 2; i++) {
-                printHex(strm, address16Ptr[i]);
-                if (i != 1) strm.print(F(" "));
-                else strm.print('\r');
+            if (_cmdId != TX_64_REQUEST) {
+                strm.print(F("Address16: "));
+                uint16_t address16 = xpt->getAddress16(); uint8_t* address16Ptr = (uint8_t*)&address16;
+                for (uint8_t i = 0; i < 2; i++) {
+                    printHex(strm, address16Ptr[i]);
+                    if (i != 1) strm.print(F(" "));
+                    else strm.print('\r');
+                }
             }
         }
     }
     // All TxRxXBeeApiFrame descendants
-    if (_cmdId == RX_RESPONSE || _cmdId == EXPLICIT_RX_RESPONSE ||
+    if (_cmdId == RX_64_RESPONSE || _cmdId == RX_RESPONSE || _cmdId == EXPLICIT_RX_RESPONSE ||
         _cmdId == RX_DATA_SAMPLE || _cmdId == RX_NODE_ID) {
         TxRxXBeeApiFrame* pt = static_cast<TxRxXBeeApiFrame*>(this);
-        uint32_t address64Msb = pt->getAddress64Msb(); uint8_t* address64MsbPtr = (uint8_t*)&address64Msb;
-        uint32_t address64Lsb = pt->getAddress64Lsb(); uint8_t* address64LsbPtr = (uint8_t*)&address64Lsb;
         strm.print(F("Address64Msb: "));
+        uint32_t address64Msb = pt->getAddress64Msb(); uint8_t* address64MsbPtr = (uint8_t*)&address64Msb;
         for (uint8_t i = 0; i < 4; i++) {
             printHex(strm, address64MsbPtr[i]);
             if (i != 3) strm.print(F(" "));
             else strm.print('\r');
         }
         strm.print(F("Address64Lsb: "));
+        uint32_t address64Lsb = pt->getAddress64Lsb(); uint8_t* address64LsbPtr = (uint8_t*)&address64Lsb;
         for (uint8_t i = 0; i < 4; i++) {
             printHex(strm, address64LsbPtr[i]);
             if (i != 3) strm.print(F(" "));
             else strm.print('\r');
         }
-        uint16_t address16 = pt->getAddress16(); uint8_t* address16Ptr = (uint8_t*)&address16;
+        if (_cmdId != RX_64_RESPONSE) {
+            strm.print(F("Address16: "));
+            uint16_t address16 = pt->getAddress16(); uint8_t* address16Ptr = (uint8_t*)&address16;
+            for (uint8_t i = 0; i < 2; i++) {
+                printHex(strm, address16Ptr[i]);
+               if (i != 1) strm.print(F(" "));
+                else strm.print('\r');
+            }
+        }
+    }
+
+    switch (_cmdId) {
+    case TX_64_REQUEST: {
+        Tx64Request* pt = static_cast<Tx64Request*>(this);
+        strm.print(F("Options: ")); printHex(strm, pt->getOptions()); strm.print('\r');
+
+        uint8_t* data = pt->getData();
+        uint16_t dataLength = pt->getDataLength();
+        if (dataLength > 0) strm.print(F("Data: "));
+        for (int i = 0; i < dataLength; i++) {
+            printHex(strm, data[i]);
+            if (i != (dataLength-1)) strm.print(F(" "));
+            else strm.print('\r');
+        }
+        strm.print('\r');
+    } break;
+    case TX_16_REQUEST: {
+        Tx16Request* pt = static_cast<Tx16Request*>(this);
         strm.print(F("Address16: "));
+        uint16_t address16 = pt->getAddress16(); uint8_t* address16Ptr = (uint8_t*)&address16;
         for (uint8_t i = 0; i < 2; i++) {
             printHex(strm, address16Ptr[i]);
             if (i != 1) strm.print(F(" "));
             else strm.print('\r');
         }
-    }
+        strm.print(F("Options: ")); printHex(strm, pt->getOptions()); strm.print('\r');
 
-    switch (_cmdId) {
+        uint8_t* data = pt->getData();
+        uint16_t dataLength = pt->getDataLength();
+        if (dataLength > 0) strm.print(F("Data: "));
+        for (int i = 0; i < dataLength; i++) {
+            printHex(strm, data[i]);
+            if (i != (dataLength-1)) strm.print(F(" "));
+            else strm.print('\r');
+        }
+        strm.print('\r');
+    } break;
     case AT_COMMAND:
     case AT_QUEUE_COMMAND: {
         AtQueueCommand* pt = static_cast<AtQueueCommand*>(this);
@@ -246,6 +286,43 @@ XBeeApiFrame::printSummary(Stream& strm) {
         for (int i = 0; i < paramLength; i++) {
             printHex(strm, param[i]);
             if (i != (paramLength-1)) strm.print(F(" "));
+            else strm.print('\r');
+        }
+        strm.print('\r');
+    } break;
+    case RX_64_RESPONSE: {
+        Rx64Response* pt = static_cast<Rx64Response*>(this);
+        strm.print(F("Rssi: ")); printHex(strm, pt->getRssi()); strm.print('\r');
+        strm.print(F("Options: ")); printHex(strm, pt->getOptions()); strm.print('\r');
+
+        uint8_t* data = pt->getData();
+        uint16_t dataLength = pt->getDataLength();
+        if (dataLength > 0) strm.print(F("Data: "));
+        for (int i = 0; i < dataLength; i++) {
+            printHex(strm, data[i]);
+            if (i != (dataLength-1)) strm.print(F(" "));
+            else strm.print('\r');
+        }
+        strm.print('\r');
+    } break;
+    case RX_16_RESPONSE: {
+        Rx16Response* pt = static_cast<Rx16Response*>(this);
+        strm.print(F("Address16: "));
+        uint16_t address16 = pt->getAddress16(); uint8_t* address16Ptr = (uint8_t*)&address16;
+        for (uint8_t i = 0; i < 2; i++) {
+            printHex(strm, address16Ptr[i]);
+            if (i != 1) strm.print(F(" "));
+            else strm.print('\r');
+        }
+        strm.print(F("Rssi: ")); printHex(strm, pt->getRssi()); strm.print('\r');
+        strm.print(F("Options: ")); printHex(strm, pt->getOptions()); strm.print('\r');
+
+        uint8_t* data = pt->getData();
+        uint16_t dataLength = pt->getDataLength();
+        if (dataLength > 0) strm.print(F("Data: "));
+        for (int i = 0; i < dataLength; i++) {
+            printHex(strm, data[i]);
+            if (i != (dataLength-1)) strm.print(F(" "));
             else strm.print('\r');
         }
         strm.print('\r');
@@ -484,30 +561,30 @@ XBeeApiFrame::printSummary(Stream& strm) {
     case RX_NODE_ID: {
         RxNodeId* pt = static_cast<RxNodeId*>(this);
         strm.print(F("Options: ")); printHex(strm, pt->getOptions()); strm.print('\r');
-        uint16_t sourceAddress16 = pt->getSourceAddress16(); uint8_t* sourceAddress16Ptr = (uint8_t*)&sourceAddress16;
         strm.print(F("Source Address16: "));
+        uint16_t sourceAddress16 = pt->getSourceAddress16(); uint8_t* sourceAddress16Ptr = (uint8_t*)&sourceAddress16;
         for (uint8_t i = 0; i < 2; i++) {
             printHex(strm, sourceAddress16Ptr[i]);
             if (i != 1) strm.print(F(" "));
             else strm.print('\r');
         }
-        uint32_t networkAddress64Msb = pt->getNetworkAddress64Msb(); uint8_t* networkAddress64MsbPtr = (uint8_t*)&networkAddress64Msb;
-        uint32_t networkAddress64Lsb = pt->getNetworkAddress64Lsb(); uint8_t* networkAddress64LsbPtr = (uint8_t*)&networkAddress64Lsb;
         strm.print(F("Network Address64Msb: "));
+        uint32_t networkAddress64Msb = pt->getNetworkAddress64Msb(); uint8_t* networkAddress64MsbPtr = (uint8_t*)&networkAddress64Msb;
         for (uint8_t i = 0; i < 4; i++) {
             printHex(strm, networkAddress64MsbPtr[i]);
             if (i != 3) strm.print(F(" "));
             else strm.print('\r');
         }
         strm.print(F("Network Address64Lsb: "));
+        uint32_t networkAddress64Lsb = pt->getNetworkAddress64Lsb(); uint8_t* networkAddress64LsbPtr = (uint8_t*)&networkAddress64Lsb;
         for (uint8_t i = 0; i < 4; i++) {
             printHex(strm, networkAddress64LsbPtr[i]);
             if (i != 3) strm.print(F(" "));
             else strm.print('\r');
         }
         strm.print(F("NI: ")); strm.print((char*)(pt->getNi())); strm.print('\r');
-        uint16_t parentAddress16 = pt->getParentAddress16(); uint8_t* parentAddress16Ptr = (uint8_t*)&parentAddress16;
         strm.print(F("Parent Address16: "));
+        uint16_t parentAddress16 = pt->getParentAddress16(); uint8_t* parentAddress16Ptr = (uint8_t*)&parentAddress16;
         for (uint8_t i = 0; i < 2; i++) {
             printHex(strm, parentAddress16Ptr[i]);
             if (i != 1) strm.print(F(" "));
@@ -515,15 +592,15 @@ XBeeApiFrame::printSummary(Stream& strm) {
         }
         strm.print(F("Device Type: ")); printHex(strm, pt->getType()); strm.print('\r');
         strm.print(F("Source Event: ")); printHex(strm, pt->getSourceEvent()); strm.print('\r');
-        uint16_t digiProfileId = pt->getDigiProfileId(); uint8_t* digiProfileIdPtr = (uint8_t*)&digiProfileId;
         strm.print(F("Digi Profile ID: "));
+        uint16_t digiProfileId = pt->getDigiProfileId(); uint8_t* digiProfileIdPtr = (uint8_t*)&digiProfileId;
         for (uint8_t i = 0; i < 2; i++) {
             printHex(strm, digiProfileIdPtr[i]);
             if (i != 1) strm.print(F(" "));
             else strm.print('\r');
         }
-        uint16_t digiManufacturerId = pt->getDigiManufacturerId(); uint8_t* digiManufacturerIdPtr = (uint8_t*)&digiManufacturerId;
         strm.print(F("Digi Manufacturer ID: "));
+        uint16_t digiManufacturerId = pt->getDigiManufacturerId(); uint8_t* digiManufacturerIdPtr = (uint8_t*)&digiManufacturerId;
         for (uint8_t i = 0; i < 2; i++) {
             printHex(strm, digiManufacturerIdPtr[i]);
             if (i != 1) strm.print(F(" "));
@@ -628,6 +705,380 @@ TxRxFrameIdDescription::setAddress16(const uint16_t& address16) {
 }
 
 
+Tx64Request::Tx64Request(const uint8_t& frameId,
+    const uint32_t& address64Msb, const uint32_t& address64Lsb,
+    const uint8_t& options, const uint8_t* data, const uint16_t& dataLength) {
+    _cmdId = TX_64_REQUEST;
+    _cmdData = new uint8_t[TX_64_REQUEST_HEAD+dataLength];
+
+    setCmdDataLength(TX_64_REQUEST_HEAD+dataLength);
+    setFrameId(frameId);
+    setAddress64(address64Msb, address64Lsb, false);
+    setOptions(options, false);
+
+    for (uint16_t i = 0; i < dataLength; i++) _cmdData[TX_64_REQUEST_HEAD+i] = data[i];
+
+    setChecksum();
+}
+Tx64Request::Tx64Request(const uint8_t& frameId,
+    const uint32_t& address64Msb, const uint32_t& address64Lsb,
+    const uint8_t* data, const uint16_t& dataLength):
+    Tx64Request(frameId, address64Msb, address64Lsb, 0, data, dataLength) {}
+
+Tx64Request::Tx64Request(const uint8_t& frameId,
+    const uint32_t& address64Msb, const uint32_t& address64Lsb,
+    const uint8_t& options, const char* data) {
+    uint16_t dataLength = 0;
+    for (; data[dataLength]!='\0'; dataLength++);
+
+    _cmdId = TX_64_REQUEST;
+    _cmdData = new uint8_t[TX_64_REQUEST_HEAD+dataLength];
+
+    setCmdDataLength(TX_64_REQUEST_HEAD+dataLength);
+    setFrameId(frameId);
+    setAddress64(address64Msb, address64Lsb, false);
+    setOptions(options, false);
+
+    for (uint16_t i = 0; i < dataLength; i++) _cmdData[TX_64_REQUEST_HEAD+i] = data[i];
+
+    setChecksum();
+}
+Tx64Request::Tx64Request(const uint8_t& frameId,
+    const uint32_t& address64Msb, const uint32_t& address64Lsb,
+    const char* data):
+    Tx64Request(frameId, address64Msb, address64Lsb, 0, data) {}
+
+#ifdef XBEENG_WITH_EXTRAS
+Tx64Request::Tx64Request(const uint8_t& frameId,
+    const uint32_t& address64Msb, const uint32_t& address64Lsb,
+    const uint8_t& options, const std::initializer_list<uint8_t>& data) {
+    uint16_t dataLength = data.size();
+
+    _cmdId = TX_64_REQUEST;
+    _cmdData = new uint8_t[TX_64_REQUEST_HEAD+dataLength];
+
+    setCmdDataLength(TX_64_REQUEST_HEAD+dataLength);
+    setFrameId(frameId);
+    setAddress64(address64Msb, address64Lsb, false);
+    setOptions(options, false);
+
+    uint16_t i = 0;
+    for (uint8_t data_i : data) _cmdData[TX_64_REQUEST_HEAD+(i++)] = data_i;
+
+    setChecksum();
+}
+Tx64Request::Tx64Request(const uint8_t& frameId,
+    const uint32_t& address64Msb, const uint32_t& address64Lsb,
+    const std::initializer_list<uint8_t>& data):
+    Tx64Request(frameId, address64Msb, address64Lsb, 0, data) {}
+#endif
+
+uint8_t
+Tx64Request::getOptions() { return _cmdData[13-CMD_DATA_OFFSET]; }
+void
+Tx64Request::setOptions(const uint8_t& options, const bool& performChecksum) {
+    _cmdData[13-CMD_DATA_OFFSET] = options;
+    if (performChecksum) setChecksum();
+}
+void
+Tx64Request::setOptions(const uint8_t& options) {
+    setOptions(options, true);
+}
+
+uint8_t*
+Tx64Request::getData() { return &(_cmdData[14-CMD_DATA_OFFSET]); }
+void
+Tx64Request::setData(const uint8_t* data, const uint16_t& dataLength, const bool& performChecksum) {
+    if ((getCmdDataLength() - TX_64_REQUEST_HEAD) != dataLength) {
+        uint8_t head[TX_64_REQUEST_HEAD];
+        for (uint16_t i = 0; i < TX_64_REQUEST_HEAD; i++) head[i] = _cmdData[i];
+
+        delete[] _cmdData;
+        _cmdData = new uint8_t[TX_64_REQUEST_HEAD+dataLength];
+        setCmdDataLength(TX_64_REQUEST_HEAD+dataLength);
+
+        for (uint16_t i = 0; i < TX_64_REQUEST_HEAD; i++) _cmdData[i] = head[i];
+    }
+
+    for (uint16_t i = 0; i < dataLength; i++)
+        _cmdData[TX_64_REQUEST_HEAD+i] = data[i];
+
+    if (performChecksum) setChecksum();
+}
+void
+Tx64Request::setData(const uint8_t* data, const uint16_t& dataLength) {
+    setData(data, dataLength, true);
+}
+void
+Tx64Request::setData(const char* data, const bool& performChecksum) {
+    uint16_t dataLength = 0;
+    for (; data[dataLength]!='\0'; dataLength++);
+
+    if ((getCmdDataLength() - TX_64_REQUEST_HEAD) != dataLength) {
+        uint8_t head[TX_64_REQUEST_HEAD];
+        for (uint16_t i = 0; i < TX_64_REQUEST_HEAD; i++) head[i] = _cmdData[i];
+
+        delete[] _cmdData;
+        _cmdData = new uint8_t[TX_64_REQUEST_HEAD+dataLength];
+        setCmdDataLength(TX_64_REQUEST_HEAD+dataLength);
+
+        for (uint16_t i = 0; i < TX_64_REQUEST_HEAD; i++) _cmdData[i] = head[i];
+    }
+
+    for (uint16_t i = 0; i < dataLength; i++)
+        _cmdData[TX_64_REQUEST_HEAD+i] = data[i];
+
+    if (performChecksum) setChecksum();
+}
+void
+Tx64Request::setData(const char* data) {
+    setData(data, true);
+}
+#ifdef XBEENG_WITH_EXTRAS
+void
+Tx64Request::setData(const std::initializer_list<uint8_t>& data, const bool& performChecksum) {
+    uint16_t dataLength = data.size();
+
+    if ((getCmdDataLength() - TX_64_REQUEST_HEAD) != dataLength) {
+        uint8_t head[TX_64_REQUEST_HEAD];
+        for (uint16_t i = 0; i < TX_64_REQUEST_HEAD; i++) head[i] = _cmdData[i];
+
+        delete[] _cmdData;
+        _cmdData = new uint8_t[TX_64_REQUEST_HEAD+dataLength];
+        setCmdDataLength(TX_64_REQUEST_HEAD+dataLength);
+
+        for (uint16_t i = 0; i < TX_64_REQUEST_HEAD; i++) _cmdData[i] = head[i];
+    }
+
+
+    uint16_t i = 0;
+    for (uint8_t data_i : data) _cmdData[TX_64_REQUEST_HEAD+(i++)] = data_i;
+
+    if (performChecksum) setChecksum();
+}
+void
+Tx64Request::setData(const std::initializer_list<uint8_t>& data) {
+    setData(data, true);
+}
+#endif
+uint16_t
+Tx64Request::getDataLength() { return getCmdDataLength() - TX_64_REQUEST_HEAD; }
+
+
+Tx16Request::Tx16Request(const uint8_t& frameId,
+    const uint16_t& address16, const uint8_t& options,
+    const uint8_t* data, const uint16_t& dataLength) {
+    _cmdId = TX_16_REQUEST;
+    _cmdData = new uint8_t[TX_16_REQUEST_HEAD+dataLength];
+
+    setCmdDataLength(TX_16_REQUEST_HEAD+dataLength);
+    setFrameId(frameId);
+    setAddress16(address16, false);
+    setOptions(options, false);
+
+    for (uint16_t i = 0; i < dataLength; i++) _cmdData[TX_16_REQUEST_HEAD+i] = data[i];
+
+    setChecksum();
+}
+Tx16Request::Tx16Request(const uint8_t& frameId,
+    const uint16_t& address16, const uint8_t* data, const uint16_t& dataLength):
+    Tx16Request(frameId, address16, 0, data, dataLength) {}
+
+Tx16Request::Tx16Request(const uint8_t& frameId,
+    const uint16_t& address16, const uint8_t& options, const char* data) {
+    uint16_t dataLength = 0;
+    for (; data[dataLength]!='\0'; dataLength++);
+
+    _cmdId = TX_16_REQUEST;
+    _cmdData = new uint8_t[TX_16_REQUEST_HEAD+dataLength];
+
+    setCmdDataLength(TX_16_REQUEST_HEAD+dataLength);
+    setFrameId(frameId);
+    setAddress16(address16, false);
+    setOptions(options, false);
+
+    for (uint16_t i = 0; i < dataLength; i++) _cmdData[TX_16_REQUEST_HEAD+i] = data[i];
+
+    setChecksum();
+}
+Tx16Request::Tx16Request(const uint8_t& frameId,
+    const uint16_t& address16, const char* data):
+    Tx16Request(frameId, address16, 0, data) {}
+
+#ifdef XBEENG_WITH_EXTRAS
+Tx16Request::Tx16Request(const uint8_t& frameId,
+    const uint16_t& address16, const uint8_t& options,
+    const std::initializer_list<uint8_t>& data) {
+    uint16_t dataLength = data.size();
+
+    _cmdId = TX_16_REQUEST;
+    _cmdData = new uint8_t[TX_16_REQUEST_HEAD+dataLength];
+
+    setCmdDataLength(TX_16_REQUEST_HEAD+dataLength);
+    setFrameId(frameId);
+    setAddress16(address16, false);
+    setOptions(options, false);
+
+    uint16_t i = 0;
+    for (uint8_t data_i : data) _cmdData[TX_16_REQUEST_HEAD+(i++)] = data_i;
+
+    setChecksum();
+}
+Tx16Request::Tx16Request(const uint8_t& frameId,
+    const uint16_t& address16, const std::initializer_list<uint8_t>& data):
+    Tx16Request(frameId, address16, 0, data) {}
+#endif
+
+uint16_t
+Tx16Request::getAddress16() { return *((uint16_t*)&(_cmdData[8-CMD_DATA_OFFSET])); }
+void
+Tx16Request::setAddress16(const uint16_t& address16, const bool& performChecksum) {
+    uint8_t* address16ptr = &(_cmdData[5-CMD_DATA_OFFSET]);
+    address16ptr[0] = (address16 >> 8) & 0xff;
+    address16ptr[1] = address16 & 0xff;
+    if (performChecksum) setChecksum();
+}
+void
+Tx16Request::setAddress16(const uint16_t& address16) {
+    setAddress16(address16, true);
+}
+
+uint8_t
+Tx16Request::getOptions() { return _cmdData[7-CMD_DATA_OFFSET]; }
+void
+Tx16Request::setOptions(const uint8_t& options, const bool& performChecksum) {
+    _cmdData[7-CMD_DATA_OFFSET] = options;
+    if (performChecksum) setChecksum();
+}
+void
+Tx16Request::setOptions(const uint8_t& options) {
+    setOptions(options, true);
+}
+
+uint8_t*
+Tx16Request::getData() { return &(_cmdData[8-CMD_DATA_OFFSET]); }
+void
+Tx16Request::setData(const uint8_t* data, const uint16_t& dataLength, const bool& performChecksum) {
+    if ((getCmdDataLength() - TX_16_REQUEST_HEAD) != dataLength) {
+        uint8_t head[TX_16_REQUEST_HEAD];
+        for (uint16_t i = 0; i < TX_16_REQUEST_HEAD; i++) head[i] = _cmdData[i];
+
+        delete[] _cmdData;
+        _cmdData = new uint8_t[TX_16_REQUEST_HEAD+dataLength];
+        setCmdDataLength(TX_16_REQUEST_HEAD+dataLength);
+
+        for (uint16_t i = 0; i < TX_16_REQUEST_HEAD; i++) _cmdData[i] = head[i];
+    }
+
+    for (uint16_t i = 0; i < dataLength; i++)
+        _cmdData[TX_16_REQUEST_HEAD+i] = data[i];
+
+    if (performChecksum) setChecksum();
+}
+void
+Tx16Request::setData(const uint8_t* data, const uint16_t& dataLength) {
+    setData(data, dataLength, true);
+}
+void
+Tx16Request::setData(const char* data, const bool& performChecksum) {
+    uint16_t dataLength = 0;
+    for (; data[dataLength]!='\0'; dataLength++);
+
+    if ((getCmdDataLength() - TX_16_REQUEST_HEAD) != dataLength) {
+        uint8_t head[TX_16_REQUEST_HEAD];
+        for (uint16_t i = 0; i < TX_16_REQUEST_HEAD; i++) head[i] = _cmdData[i];
+
+        delete[] _cmdData;
+        _cmdData = new uint8_t[TX_16_REQUEST_HEAD+dataLength];
+        setCmdDataLength(TX_16_REQUEST_HEAD+dataLength);
+
+        for (uint16_t i = 0; i < TX_16_REQUEST_HEAD; i++) _cmdData[i] = head[i];
+    }
+
+    for (uint16_t i = 0; i < dataLength; i++)
+        _cmdData[TX_16_REQUEST_HEAD+i] = data[i];
+
+    if (performChecksum) setChecksum();
+}
+void
+Tx16Request::setData(const char* data) {
+    setData(data, true);
+}
+#ifdef XBEENG_WITH_EXTRAS
+void
+Tx16Request::setData(const std::initializer_list<uint8_t>& data, const bool& performChecksum) {
+    uint16_t dataLength = data.size();
+
+    if ((getCmdDataLength() - TX_16_REQUEST_HEAD) != dataLength) {
+        uint8_t head[TX_16_REQUEST_HEAD];
+        for (uint16_t i = 0; i < TX_16_REQUEST_HEAD; i++) head[i] = _cmdData[i];
+
+        delete[] _cmdData;
+        _cmdData = new uint8_t[TX_16_REQUEST_HEAD+dataLength];
+        setCmdDataLength(TX_16_REQUEST_HEAD+dataLength);
+
+        for (uint16_t i = 0; i < TX_16_REQUEST_HEAD; i++) _cmdData[i] = head[i];
+    }
+
+
+    uint16_t i = 0;
+    for (uint8_t data_i : data) _cmdData[TX_16_REQUEST_HEAD+(i++)] = data_i;
+
+    if (performChecksum) setChecksum();
+}
+void
+Tx16Request::setData(const std::initializer_list<uint8_t>& data) {
+    setData(data, true);
+}
+#endif
+uint16_t
+Tx16Request::getDataLength() { return getCmdDataLength() - TX_16_REQUEST_HEAD; }
+
+
+AtCommand::AtCommand(const uint8_t& frameId, const uint8_t* data, const uint16_t& dataLength) {
+    //assert (dataLength >= 2);
+
+    _cmdId = AT_COMMAND;
+    _cmdData = new uint8_t[FRAME_ID_HEAD+dataLength];
+
+    setCmdDataLength(FRAME_ID_HEAD+dataLength);
+    setFrameId(frameId);
+
+    for (uint16_t i = 0; i < dataLength; i++) _cmdData[FRAME_ID_HEAD+i] = data[i];
+
+    setChecksum();
+}
+AtCommand::AtCommand(const uint8_t& frameId, const char* data) {
+    uint16_t dataLength = 0;
+    for (; data[dataLength]!='\0'; dataLength++);
+
+    //assert (dataLength >= 2);
+
+    _cmdId = AT_COMMAND;
+    _cmdData = new uint8_t[FRAME_ID_HEAD+dataLength];
+
+    setCmdDataLength(FRAME_ID_HEAD+dataLength);
+    setFrameId(frameId);
+
+    for (uint16_t i = 0; i < dataLength; i++) _cmdData[FRAME_ID_HEAD+i] = data[i];
+
+    setChecksum();
+}
+
+AtCommand::AtCommand(const uint8_t& frameId, const uint16_t& cmd):
+    AtCommand(frameId, (uint8_t*)(&cmd), 2) {}
+AtCommand::AtCommand(const uint8_t& frameId, const uint16_t& cmd,
+    const uint8_t* param, const uint16_t& paramLength) {
+    _cmdId = AT_COMMAND;
+    _cmdData = new uint8_t[AT_COMMAND_HEAD+paramLength];
+
+    setCmdDataLength(AT_COMMAND_HEAD+paramLength);
+    setFrameId(frameId);
+    setCmd(cmd, false);
+    setParam(param, paramLength, false);
+    setChecksum();
+}
+
 #ifdef XBEENG_WITH_EXTRAS
 AtCommand::AtCommand(const uint8_t& frameId, const std::initializer_list<uint8_t>& data) {
     uint16_t dataLength = data.size();
@@ -659,48 +1110,6 @@ AtCommand::AtCommand(const uint8_t& frameId, const char (&cmd)[3], const std::in
     setChecksum();
 }
 #endif
-AtCommand::AtCommand(const uint8_t& frameId, const uint8_t* data, const uint16_t& dataLength) {
-    //assert (dataLength >= 2);
-
-    _cmdId = AT_COMMAND;
-    _cmdData = new uint8_t[FRAME_ID_HEAD+dataLength];
-
-    setCmdDataLength(FRAME_ID_HEAD+dataLength);
-    setFrameId(frameId);
-
-    for (uint16_t i = 0; i < dataLength; i++) _cmdData[FRAME_ID_HEAD+i] = data[i];
-
-    setChecksum();
-}
-AtCommand::AtCommand(const uint8_t& frameId, const char* data) {
-    uint16_t dataLength = 0;
-    for (; data[dataLength]!='\0'; dataLength++);
-
-    //assert (dataLength >= 2);
-
-    _cmdId = AT_COMMAND;
-    _cmdData = new uint8_t[FRAME_ID_HEAD+dataLength];
-
-    setCmdDataLength(FRAME_ID_HEAD+dataLength);
-    setFrameId(frameId);
-
-    for (uint16_t i = 0; i < dataLength; i++) _cmdData[FRAME_ID_HEAD+i] = data[i];
-
-    setChecksum();
-}
-AtCommand::AtCommand(const uint8_t& frameId, const uint16_t& cmd):
-    AtCommand(frameId, (uint8_t*)(&cmd), 2) {}
-AtCommand::AtCommand(const uint8_t& frameId, const uint16_t& cmd,
-    const uint8_t* param, const uint16_t& paramLength) {
-    _cmdId = AT_COMMAND;
-    _cmdData = new uint8_t[AT_COMMAND_HEAD+paramLength];
-
-    setCmdDataLength(AT_COMMAND_HEAD+paramLength);
-    setFrameId(frameId);
-    setCmd(cmd, false);
-    setParam(param, paramLength, false);
-    setChecksum();
-}
 
 uint16_t
 AtCommand::getCmd() { return *((uint16_t*)&(_cmdData[1])); }
@@ -953,8 +1362,7 @@ uint8_t
 TxRequest::getOptions() { return _cmdData[16-CMD_DATA_OFFSET]; }
 void
 TxRequest::setOptions(const uint8_t& options, const bool& performChecksum) {
-    uint8_t* optionsptr = &(_cmdData[16-CMD_DATA_OFFSET]);
-    optionsptr[0] = options;
+    _cmdData[16-CMD_DATA_OFFSET] = options;
     if (performChecksum) setChecksum();
 }
 void
@@ -1272,8 +1680,7 @@ uint8_t
 ExplicitTxRequest::getOptions() { return _cmdData[22-CMD_DATA_OFFSET]; }
 void
 ExplicitTxRequest::setOptions(const uint8_t& options, const bool& performChecksum) {
-    uint8_t* optionsptr = &(_cmdData[22-CMD_DATA_OFFSET]);
-    optionsptr[0] = options;
+    _cmdData[22-CMD_DATA_OFFSET] = options;
     if (performChecksum) setChecksum();
 }
 void
@@ -1471,8 +1878,7 @@ uint8_t
 RemoteAtCommand::getOptions() { return _cmdData[15-CMD_DATA_OFFSET]; }
 void
 RemoteAtCommand::setOptions(const uint8_t& options, const bool& performChecksum) {
-    uint8_t* optionsptr = &(_cmdData[15-CMD_DATA_OFFSET]);
-    optionsptr[0] = options;
+    _cmdData[15-CMD_DATA_OFFSET] = options;
     if (performChecksum) setChecksum();
 }
 void
@@ -1549,6 +1955,30 @@ RemoteAtCommand::setParam(const uint8_t* param, const uint16_t& paramLength) {
 }
 uint16_t
 RemoteAtCommand::getParamLength() { return getCmdDataLength() - REMOTE_AT_COMMAND_HEAD; }
+
+
+uint8_t
+Rx64Response::getRssi() { return _cmdData[12-CMD_DATA_OFFSET]; }
+uint8_t
+Rx64Response::getOptions() { return _cmdData[13-CMD_DATA_OFFSET]; }
+
+uint8_t*
+Rx64Response::getData() { return &(_cmdData[14-CMD_DATA_OFFSET]); }
+uint16_t
+Rx64Response::getDataLength() { return getCmdDataLength() - RX_64_RESPONSE_HEAD; }
+
+
+uint16_t
+Rx16Response::getAddress16() { return *((uint16_t*)&(_cmdData[4-CMD_DATA_OFFSET])); }
+uint8_t
+Rx16Response::getRssi() { return _cmdData[6-CMD_DATA_OFFSET]; }
+uint8_t
+Rx16Response::getOptions() { return _cmdData[7-CMD_DATA_OFFSET]; }
+
+uint8_t*
+Rx16Response::getData() { return &(_cmdData[8-CMD_DATA_OFFSET]); }
+uint16_t
+Rx16Response::getDataLength() { return getCmdDataLength() - RX_16_RESPONSE_HEAD; }
 
 
 uint16_t
@@ -1782,7 +2212,7 @@ XBee::readPacket() {
             _escape = false;
         }
 
-        if (_pos >= CMD_ID_INDEX) {
+        if (_pos >= 3) {
             _checksumTotal += c;
         }
 
@@ -1824,7 +2254,7 @@ XBee::readPacket() {
                     _checksumTotal = 0;
                     return;
                 } else {
-                    _response.getCmdData()[_pos - 4] = c;
+                    _response.getCmdData()[_pos - CMD_DATA_OFFSET] = c;
                     _pos++;
                 }
             }

@@ -56,15 +56,16 @@
  */
 #define MAX_CMD_DATA_SIZE 110
 
-// cmdId is always the third byte in a packet
-#define CMD_ID_INDEX 3
-
 // API Frame Names
+#define TX_64_REQUEST 0x00
+#define TX_16_REQUEST 0x01
 #define AT_COMMAND 0x08
 #define AT_QUEUE_COMMAND 0x09
 #define TX_REQUEST 0x10
 #define EXPLICIT_TX_REQUEST 0x11
 #define REMOTE_AT_COMMAND 0x17
+#define RX_64_RESPONSE 0x80
+#define RX_16_RESPONSE 0x81
 #define AT_COMMAND_RESPONSE 0x88
 #define MODEM_STATUS 0x8A
 #define TX_STATUS 0x8B
@@ -75,12 +76,7 @@
 #define RX_DATA_SAMPLE 0x92
 #define RX_NODE_ID 0x95
 #define REMOTE_AT_COMMAND_RESPONSE 0x97
-// API Frame Names and Values Sent to the Module:
-#define TX_64_REQUEST 0x00
-#define TX_16_REQUEST 0x01
 // API Frame Names and Values Received from the Module:
-#define RX_64_RESPONSE 0x80
-#define RX_16_RESPONSE 0x81
 #define RX_64_IO_RESPONSE 0x82
 #define RX_16_IO_RESPONSE 0x83
 #define TX_STATUS_RESPONSE 0x89
@@ -267,6 +263,102 @@ protected:
     void setAddress16(const uint16_t& address16, bool performChecksum);
 };
 
+#define TX_64_REQUEST_HEAD 10
+class Tx64Request : public TxRxFrameIdDescription {
+private:
+    uint16_t getAddress16();
+    void setAddress16(const uint16_t& address16);
+public:
+    Tx64Request(const uint8_t& frameId,
+        const uint32_t& address64Msb, const uint32_t& address64Lsb,
+        const uint8_t& options, const uint8_t* data, const uint16_t& dataLength);
+    Tx64Request(const uint8_t& frameId,
+        const uint32_t& address64Msb, const uint32_t& address64Lsb,
+        const uint8_t* data, const uint16_t& dataLength);
+
+    Tx64Request(const uint8_t& frameId,
+        const uint32_t& address64Msb, const uint32_t& address64Lsb,
+        const uint8_t& options, const char* data);
+    Tx64Request(const uint8_t& frameId,
+        const uint32_t& address64Msb, const uint32_t& address64Lsb,
+        const char* data);
+
+#ifdef XBEENG_WITH_EXTRAS
+    Tx64Request(const uint8_t& frameId,
+        const uint32_t& address64Msb, const uint32_t& address64Lsb,
+        const uint8_t& options, const std::initializer_list<uint8_t>& data);
+    Tx64Request(const uint8_t& frameId,
+        const uint32_t& address64Msb, const uint32_t& address64Lsb,
+        const std::initializer_list<uint8_t>& data);
+#endif
+
+    uint8_t getOptions();
+    void setOptions(const uint8_t& options);
+
+    uint8_t* getData();
+    void setData(const uint8_t* data, const uint16_t& dataLength);
+    void setData(const char* data);
+#ifdef XBEENG_WITH_EXTRAS
+    void setData(const std::initializer_list<uint8_t>& data);
+#endif
+    uint16_t getDataLength();
+private:
+    void setOptions(const uint8_t& options, const bool& performChecksum);
+
+    void setData(const uint8_t* data, const uint16_t& dataLength, const bool& performChecksum);
+    void setData(const char* data, const bool& performChecksum);
+#ifdef XBEENG_WITH_EXTRAS
+    void setData(const std::initializer_list<uint8_t>& data, const bool& performChecksum);
+#endif
+};
+
+#define TX_16_REQUEST_HEAD 4
+class Tx16Request : public FrameIdDescription {
+public:
+    Tx16Request(const uint8_t& frameId,
+        const uint16_t& address16, const uint8_t& options,
+        const uint8_t* data, const uint16_t& dataLength);
+    Tx16Request(const uint8_t& frameId,
+        const uint16_t& address16, const uint8_t* data, const uint16_t& dataLength);
+
+    Tx16Request(const uint8_t& frameId,
+        const uint16_t& address16, const uint8_t& options, const char* data);
+    Tx16Request(const uint8_t& frameId,
+        const uint16_t& address16, const char* data);
+
+#ifdef XBEENG_WITH_EXTRAS
+    Tx16Request(const uint8_t& frameId,
+        const uint16_t& address16, const uint8_t& options,
+        const std::initializer_list<uint8_t>& data);
+    Tx16Request(const uint8_t& frameId,
+        const uint16_t& address16, const std::initializer_list<uint8_t>& data);
+#endif
+
+    uint16_t getAddress16();
+    void setAddress16(const uint16_t& address16);
+
+    uint8_t getOptions();
+    void setOptions(const uint8_t& options);
+
+    uint8_t* getData();
+    void setData(const uint8_t* data, const uint16_t& dataLength);
+    void setData(const char* data);
+#ifdef XBEENG_WITH_EXTRAS
+    void setData(const std::initializer_list<uint8_t>& data);
+#endif
+    uint16_t getDataLength();
+private:
+    void setAddress16(const uint16_t& address16, const bool& performChecksum);
+
+    void setOptions(const uint8_t& options, const bool& performChecksum);
+
+    void setData(const uint8_t* data, const uint16_t& dataLength, const bool& performChecksum);
+    void setData(const char* data, const bool& performChecksum);
+#ifdef XBEENG_WITH_EXTRAS
+    void setData(const std::initializer_list<uint8_t>& data, const bool& performChecksum);
+#endif
+};
+
 #define AT_COMMAND_HEAD 3
 class AtCommand : public FrameIdDescription {
 public:
@@ -284,25 +376,27 @@ public:
     uint16_t getCmd();
     void setCmd(const uint16_t& cmd);
     void setCmd(const char (&cmd)[3]);
+#ifdef XBEENG_WITH_EXTRAS
+    void setCmd(const char (&cmd)[3], const std::initializer_list<uint8_t>& param);
+#endif
 
     uint8_t* getParam();
     void setParam(const uint8_t* param, const uint16_t& paramLengt);
     void setParam(const char* param);
-    uint16_t getParamLength();
-
 #ifdef XBEENG_WITH_EXTRAS
-    void setCmd(const char (&cmd)[3], const std::initializer_list<uint8_t>& param);
     void setParam(const std::initializer_list<uint8_t>& param);
 #endif
-
+    uint16_t getParamLength();
 private:
     void setCmd(const uint16_t& cmd, const bool& performChecksum);
     void setCmd(const char (&cmd)[3], const bool& performChecksum);
-    void setParam(const uint8_t* param, const uint16_t& paramLength, const bool& performChecksum);
-    void setParam(const char* param, const bool& performChecksum);
-
 #ifdef XBEENG_WITH_EXTRAS
     void setCmd(const char (&cmd)[3], const std::initializer_list<uint8_t>& param, const bool& performChecksum);
+#endif
+
+    void setParam(const uint8_t* param, const uint16_t& paramLength, const bool& performChecksum);
+    void setParam(const char* param, const bool& performChecksum);
+#ifdef XBEENG_WITH_EXTRAS
     void setParam(const std::initializer_list<uint8_t>& param, const bool& performChecksum);
 #endif
 };
@@ -328,24 +422,26 @@ public:
         const uint8_t* data, const uint16_t& dataLength);
     TxRequest(const uint8_t& frameId,
         const uint32_t& address64Msb, const uint32_t& address64Lsb,
+        const uint8_t& broadcast, const uint8_t& options,
+        const uint8_t* data, const uint16_t& dataLength);
+    TxRequest(const uint8_t& frameId,
+        const uint32_t& address64Msb, const uint32_t& address64Lsb,
+        const uint8_t* data, const uint16_t& dataLength);
+    TxRequest(const uint8_t& frameId, const uint8_t* data, const uint16_t& dataLength);
+
+    TxRequest(const uint8_t& frameId,
+        const uint32_t& address64Msb, const uint32_t& address64Lsb,
         const uint16_t& address16, const uint8_t& broadcast, const uint8_t& options,
         const char* data);
     TxRequest(const uint8_t& frameId,
         const uint32_t& address64Msb, const uint32_t& address64Lsb,
         const uint8_t& broadcast, const uint8_t& options,
-        const uint8_t* data, const uint16_t& dataLength);
-    TxRequest(const uint8_t& frameId,
-        const uint32_t& address64Msb, const uint32_t& address64Lsb,
-        const uint8_t& broadcast, const uint8_t& options,
         const char* data);
     TxRequest(const uint8_t& frameId,
         const uint32_t& address64Msb, const uint32_t& address64Lsb,
-        const uint8_t* data, const uint16_t& dataLength);
-    TxRequest(const uint8_t& frameId,
-        const uint32_t& address64Msb, const uint32_t& address64Lsb,
         const char* data);
-    TxRequest(const uint8_t& frameId, const uint8_t* data, const uint16_t& dataLength);
     TxRequest(const uint8_t& frameId, const char* data);
+
 #ifdef XBEENG_WITH_EXTRAS
     TxRequest(const uint8_t& frameId,
         const uint32_t& address64Msb, const uint32_t& address64Lsb,
@@ -509,6 +605,7 @@ public:
     RemoteAtCommand(const uint8_t& frameId,
         const uint32_t& address64Msb, const uint32_t& address64Lsb,
         const uint8_t& options, const char* data);
+
     RemoteAtCommand(const uint8_t& frameId,
         const uint32_t& address64Msb, const uint32_t& address64Lsb,
         const uint16_t& address16, const uint8_t& options,
@@ -524,6 +621,7 @@ public:
     RemoteAtCommand(const uint8_t& frameId,
         const uint32_t& address64Msb, const uint32_t& address64Lsb,
         const uint8_t& options, const uint16_t& cmd);
+
     RemoteAtCommand(const uint8_t& frameId,
         const uint32_t& address64Msb, const uint32_t& address64Lsb,
         const uint16_t& address16, const uint8_t& options,
@@ -557,6 +655,30 @@ private:
     void setCmd(const uint16_t& cmd, const bool& performChecksum);
     void setCmd(const char* cmd, const bool& performChecksum);
     void setParam(const uint8_t* param, const uint16_t& paramLength, const bool& performChecksum);
+};
+
+#define RX_64_RESPONSE_HEAD 10
+class Rx64Response : public TxRxXBeeApiFrame {
+private:
+    uint16_t getAddress16();
+public:
+    uint8_t getRssi();
+    uint8_t getOptions();
+
+    uint8_t* getData();
+    uint16_t getDataLength();
+};
+
+#define RX_16_RESPONSE_HEAD 4
+class Rx16Response : public XBeeApiFrame {
+public:
+    uint16_t getAddress16();
+
+    uint8_t getRssi();
+    uint8_t getOptions();
+
+    uint8_t* getData();
+    uint16_t getDataLength();
 };
 
 #define AT_COMMAND_RESPONSE_HEAD 4
