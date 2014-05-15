@@ -77,6 +77,10 @@ To understand the network setting in XB802 module see the [user manual](http://f
 	// Set the Network ID [ID] (range: 0-0xFFFF)
     atCmd.setCmd("ID", { 0x33, 0x31 });
     xbng.send(atCmd);
+
+	// Set the Operating Channel [CH] (range: 0x0B-0x1A for XBee, and 0x0c-0x17 for XBee-PRO)
+    atCmd.setCmd("CH", { 0x0F });
+    xbng.send(atCmd);
 ...
 ```
 
