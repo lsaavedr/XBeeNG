@@ -109,6 +109,7 @@ XBeeApiFrame::printSummary(Stream& strm) {
         _cmdId == AT_COMMAND || _cmdId == AT_QUEUE_COMMAND ||
         _cmdId == TX_REQUEST || _cmdId == EXPLICIT_TX_REQUEST ||
         _cmdId == REMOTE_AT_COMMAND || _cmdId == AT_COMMAND_RESPONSE ||
+        _cmdId == TX_STATUS_RESPONSE ||
         _cmdId == TX_STATUS || _cmdId == REMOTE_AT_COMMAND_RESPONSE) {
         FrameIdDescription* pt = static_cast<FrameIdDescription*>(this);
         strm.print(F("Frame ID: ")); printHex(strm, pt->getFrameId()); strm.print('\r');
@@ -344,6 +345,11 @@ XBeeApiFrame::printSummary(Stream& strm) {
             if (i != (dataLength-1)) strm.print(F(" "));
             else strm.print('\r');
         }
+        strm.print('\r');
+    } break;
+    case TX_STATUS_RESPONSE: {
+        TxStatusResponse* pt = static_cast<TxStatusResponse*>(this);
+        strm.print(F("Status: ")); printHex(strm, pt->getStatus()); strm.print('\r');
         strm.print('\r');
     } break;
     case MODEM_STATUS: {
@@ -1991,6 +1997,10 @@ uint8_t*
 AtCommandResponse::getData() { return &(_cmdData[8-CMD_DATA_OFFSET]); }
 uint16_t
 AtCommandResponse::getDataLength() { return getCmdDataLength() - AT_COMMAND_RESPONSE_HEAD; }
+
+
+uint8_t
+TxStatusResponse::getStatus() { return _cmdData[5-CMD_DATA_OFFSET]; }
 
 
 uint8_t

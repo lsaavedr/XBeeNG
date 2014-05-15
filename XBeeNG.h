@@ -67,6 +67,7 @@
 #define RX_64_RESPONSE 0x80
 #define RX_16_RESPONSE 0x81
 #define AT_COMMAND_RESPONSE 0x88
+#define TX_STATUS_RESPONSE 0x89
 #define MODEM_STATUS 0x8A
 #define TX_STATUS 0x8B
 #define ROUTE_INFORMATION 0x8D
@@ -79,7 +80,6 @@
 // API Frame Names and Values Received from the Module:
 #define RX_64_IO_RESPONSE 0x82
 #define RX_16_IO_RESPONSE 0x83
-#define TX_STATUS_RESPONSE 0x89
 // Others:
 #define CREATE_SOURCE_ROUTE 0x21
 #define SENSOR_READ 0x94
@@ -689,6 +689,12 @@ public:
 
     uint8_t* getData();
     uint16_t getDataLength();
+};
+
+#define TX_STATUS_RESPONSE_HEAD 2
+class TxStatusResponse : public FrameIdDescription {
+public:
+    uint8_t getStatus();
 };
 
 #define MODEM_STATUS_HEAD 1
