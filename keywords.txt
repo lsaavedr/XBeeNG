@@ -2,29 +2,75 @@ XBeeApiFrame	KEYWORD1
 
 AT_COMMAND	LITERAL1
 AtCommand	KEYWORD1
+getCmd	KEYWORD2
 setCmd	KEYWORD2
+getParam	KEYWORD2
 setParam	KEYWORD2
+getParamLength	KEYWORD2
 
 AT_QUEUE_COMMAND	LITERAL1
 AtQueueCommand	KEYWORD1
 
 TX_REQUEST	LITERAL1
 TxRequest	KEYWORD1
+getBroadcast	KEYWORD2
+setBroadcast	KEYWORD2
+getOptions	KEYWORD2
+setOptions	KEYWORD2
+getData	KEYWORD2
+setData	KEYWORD2
+getDataLength	KEYWORD2
 
 EXPLICIT_TX_REQUEST	LITERAL1
 ExplicitTxRequest	KEYWORD1
+getSourceEndpoint	KEYWORD2
+setSourceEndpoint	KEYWORD2
+getDestinationEndpoint	KEYWORD2
+setDestinationEndpoint	KEYWORD2
+getClusterId	KEYWORD2
+setClusterId	KEYWORD2
+getProfileId	KEYWORD2
+setProfileId	KEYWORD2
 
 REMOTE_AT_COMMAND	LITERAL1
 RemoteAtCommand	KEYWORD1
 
 AT_COMMAND_RESPONSE	LITERAL1
 AtCommandResponse	KEYWORD1
+getStatus	KEYWORD2
 
 MODEM_STATUS	LITERAL1
 ModemStatus	KEYWORD1
 
 TX_STATUS	LITERAL1
 TxStatus	KEYWORD1
+getAddress16	KEYWORD2
+getRetryCount	KEYWORD2
+getDeliveryStatus	KEYWORD2
+getDiscoveryStatus	KEYWORD2
+
+ROUTE_INFORMATION	LITERAL1
+RouteInformation	KEYWORD1
+getSourceEvent	KEYWORD2
+getLength	KEYWORD2
+getTimestamp	KEYWORD2
+getAckTimoutCount	KEYWORD2
+getDestinationAddress64Msb	KEYWORD2
+getDestinationAddress64Lsb	KEYWORD2
+getSourceAddress64Msb	KEYWORD2
+getSourceAddress64Lsb	KEYWORD2
+getResponderAddress64Msb	KEYWORD2
+getResponderAddress64Lsb	KEYWORD2
+getReceiverAddress64Msb	KEYWORD2
+getReceiverAddress64Lsb	KEYWORD2
+
+AGGREGATE_ADDRESSING	LITERAL1
+AggregateAddressing	KEYWORD1
+getFormatId	KEYWORD2
+getNewAddress64Msb	KEYWORD2
+getNewAddress64Lsb	KEYWORD2
+getOldAddress64Msb	KEYWORD2
+getOldAddress64Lsb	KEYWORD2
 
 RX_RESPONSE	LITERAL1
 RxResponse	KEYWORD1
@@ -34,9 +80,26 @@ ExplicitRxResponse	KEYWORD1
 
 RX_DATA_SAMPLE	LITERAL1
 RxDataSample	KEYWORD1
+getNSamples	KEYWORD2
+getDigitalMask	KEYWORD2
+getAnalogMask	KEYWORD2
+getDigitalSamples	KEYWORD2
+getAnalogSamples	KEYWORD2
+getAnalogSamplesLength	KEYWORD2
 
 RX_NODE_ID	LITERAL1
 RxNodeId	KEYWORD1
+getSourceAddress16	KEYWORD2
+getNetworkAddress64Msb	KEYWORD2
+getNetworkAddress64Lsb	KEYWORD2
+getNi	KEYWORD2
+getNiLength	KEYWORD2
+getParentAddress16	KEYWORD2
+getType	KEYWORD2
+getDigiProfileId	KEYWORD2
+getDigiManufacturerId	KEYWORD2
+getDigiDd	KEYWORD2
+getRssi	KEYWORD2
 
 REMOTE_AT_COMMAND_RESPONSE	LITERAL1
 RemoteAtCommandResponse	KEYWORD1
