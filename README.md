@@ -92,6 +92,18 @@ To understand the network setting in XB802 module see the [user manual](http://f
     xbng.send(txReq);
 ...
 ```
+### Basic Sending Data with XB802
+```c++
+...
+	// Sending { 0xDA, 0x7A } to address64: 0x0013A200 0x403E0F30
+	Tx64Request txReq = Tx64Request(2, 0x0013A200, 0x403E0F30, { 0xDA, 0x7A } );
+    xbng.send(txReq);
+
+	// Sending { 0xBE, 0xBE } to address16: 0x403E0F30
+	Tx16Request txReq = Tx16Request(2, 0x403E0F30, { 0xBE, 0xBE } );
+    xbng.send(txReq);
+...
+```
 
 ### Basic Consumption Response
 ```c++
