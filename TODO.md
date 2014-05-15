@@ -1,9 +1,5 @@
 ## ToDo List with API Frames to be implemented:
 
-### In XB900HP and XBDM:
-- 0x8D - RouteInformationPacket
-- 0x8E - AggregateAddressingUpdate
-
 ### In XBZB:
 - 0x21 - CreateSourceRoute
 - 0x94 - RxSensorRead
