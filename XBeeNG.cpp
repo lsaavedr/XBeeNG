@@ -328,6 +328,95 @@ XBeeApiFrame::printSummary(Stream& strm) {
         }
         strm.print('\r');
     } break;
+    case RX_64_DATA_SAMPLE: {
+        Rx64DataSample* pt = static_cast<Rx64DataSample*>(this);
+        strm.print(F("Rssi: ")); printHex(strm, pt->getRssi()); strm.print('\r');
+        strm.print(F("Options: ")); printHex(strm, pt->getOptions()); strm.print('\r');
+        strm.print(F("Number of Samples: ")); printHex(strm, pt->getNSamples()); strm.print('\r');
+        uint16_t digitalMask = pt->getDigitalMask(); uint8_t* digitalMaskPtr = (uint8_t*)&digitalMask;
+        strm.print(F("Digital Mask: "));
+        for (uint8_t i = 0; i < 2; i++) {
+            printHex(strm, digitalMaskPtr[i]);
+            if (i != 1) strm.print(F(" "));
+            else strm.print('\r');
+        }
+        strm.print(F("Analog Mask: ")); printHex(strm, pt->getAnalogMask()); strm.print('\r');
+
+        if (digitalMask > 0) {
+            strm.print(F("Digital Samples: "));
+            uint16_t digitalSamples = pt->getDigitalSamples(); uint8_t* digitalSamplesPtr = (uint8_t*)&digitalSamples;
+            for (uint8_t i = 0; i < 2; i++) {
+                printHex(strm, digitalSamplesPtr[i]);
+             if (i != 1) strm.print(F(" "));
+                else strm.print('\r');
+            }
+        }
+
+        if (pt->getAnalogMask() > 0) {
+            uint16_t* analogSamples = pt->getAnalogSamples();
+            uint16_t analogSamplesLength = pt->getAnalogSamplesLength();
+            if (analogSamplesLength > 0) strm.print(F("Analog Samples: "));
+            for (int i = 0; i < analogSamplesLength; i++) {
+                uint8_t* analogSample = (uint8_t*)&(analogSamples[i]);
+                for (uint8_t j = 0; j < 2; j++) {
+                    printHex(strm, analogSample[j]);
+                    if (j != 1) strm.print(F(" "));
+                }
+                if (i != (analogSamplesLength-1)) strm.print(F("  "));
+                else strm.print('\r');
+            }
+        }
+
+        strm.print('\r');
+    } break;
+    case RX_16_DATA_SAMPLE: {
+        Rx16DataSample* pt = static_cast<Rx16DataSample*>(this);
+        strm.print(F("Address16: "));
+        uint16_t address16 = pt->getAddress16(); uint8_t* address16Ptr = (uint8_t*)&address16;
+        for (uint8_t i = 0; i < 2; i++) {
+            printHex(strm, address16Ptr[i]);
+            if (i != 1) strm.print(F(" "));
+            else strm.print('\r');
+        }
+        strm.print(F("Rssi: ")); printHex(strm, pt->getRssi()); strm.print('\r');
+        strm.print(F("Options: ")); printHex(strm, pt->getOptions()); strm.print('\r');
+        strm.print(F("Number of Samples: ")); printHex(strm, pt->getNSamples()); strm.print('\r');
+        uint16_t digitalMask = pt->getDigitalMask(); uint8_t* digitalMaskPtr = (uint8_t*)&digitalMask;
+        strm.print(F("Digital Mask: "));
+        for (uint8_t i = 0; i < 2; i++) {
+            printHex(strm, digitalMaskPtr[i]);
+            if (i != 1) strm.print(F(" "));
+            else strm.print('\r');
+        }
+        strm.print(F("Analog Mask: ")); printHex(strm, pt->getAnalogMask()); strm.print('\r');
+
+        if (digitalMask > 0) {
+            strm.print(F("Digital Samples: "));
+            uint16_t digitalSamples = pt->getDigitalSamples(); uint8_t* digitalSamplesPtr = (uint8_t*)&digitalSamples;
+            for (uint8_t i = 0; i < 2; i++) {
+                printHex(strm, digitalSamplesPtr[i]);
+             if (i != 1) strm.print(F(" "));
+                else strm.print('\r');
+            }
+        }
+
+        if (pt->getAnalogMask() > 0) {
+            uint16_t* analogSamples = pt->getAnalogSamples();
+            uint16_t analogSamplesLength = pt->getAnalogSamplesLength();
+            if (analogSamplesLength > 0) strm.print(F("Analog Samples: "));
+            for (int i = 0; i < analogSamplesLength; i++) {
+                uint8_t* analogSample = (uint8_t*)&(analogSamples[i]);
+                for (uint8_t j = 0; j < 2; j++) {
+                    printHex(strm, analogSample[j]);
+                    if (j != 1) strm.print(F(" "));
+                }
+                if (i != (analogSamplesLength-1)) strm.print(F("  "));
+                else strm.print('\r');
+            }
+        }
+
+        strm.print('\r');
+    } break;
     case AT_COMMAND_RESPONSE: {
         AtCommandResponse* pt = static_cast<AtCommandResponse*>(this);
         strm.print(F("Command: "));
@@ -542,26 +631,32 @@ XBeeApiFrame::printSummary(Stream& strm) {
             else strm.print('\r');
         }
         strm.print(F("Analog Mask: ")); printHex(strm, pt->getAnalogMask()); strm.print('\r');
-        strm.print(F("Digital Samples: "));
-        uint16_t digitalSamples = pt->getDigitalSamples(); uint8_t* digitalSamplesPtr = (uint8_t*)&digitalSamples;
-        for (uint8_t i = 0; i < 2; i++) {
-            printHex(strm, digitalSamplesPtr[i]);
-            if (i != 1) strm.print(F(" "));
-            else strm.print('\r');
+
+        if (digitalMask > 0) {
+            strm.print(F("Digital Samples: "));
+            uint16_t digitalSamples = pt->getDigitalSamples(); uint8_t* digitalSamplesPtr = (uint8_t*)&digitalSamples;
+            for (uint8_t i = 0; i < 2; i++) {
+                printHex(strm, digitalSamplesPtr[i]);
+             if (i != 1) strm.print(F(" "));
+                else strm.print('\r');
+            }
         }
 
-        uint16_t* analogSamples = pt->getAnalogSamples();
-        uint16_t analogSamplesLength = pt->getAnalogSamplesLength();
-        if (analogSamplesLength > 0) strm.print(F("Analog Samples: "));
-        for (int i = 0; i < analogSamplesLength; i++) {
-            uint8_t* analogSample = (uint8_t*)&(analogSamples[i]);
-            for (uint8_t j = 0; j < 2; j++) {
-                printHex(strm, analogSample[j]);
-                if (j != 1) strm.print(F(" "));
+        if (pt->getAnalogMask() > 0) {
+            uint16_t* analogSamples = pt->getAnalogSamples();
+            uint16_t analogSamplesLength = pt->getAnalogSamplesLength();
+            if (analogSamplesLength > 0) strm.print(F("Analog Samples: "));
+            for (int i = 0; i < analogSamplesLength; i++) {
+                uint8_t* analogSample = (uint8_t*)&(analogSamples[i]);
+                for (uint8_t j = 0; j < 2; j++) {
+                    printHex(strm, analogSample[j]);
+                    if (j != 1) strm.print(F(" "));
+                }
+                if (i != (analogSamplesLength-1)) strm.print(F("  "));
+                else strm.print('\r');
             }
-            if (i != (analogSamplesLength-1)) strm.print(F("  "));
-            else strm.print('\r');
         }
+
         strm.print('\r');
     } break;
     case RX_NODE_ID: {
@@ -1976,6 +2071,52 @@ uint8_t*
 Rx16Response::getData() { return &(_cmdData[8-CMD_DATA_OFFSET]); }
 uint16_t
 Rx16Response::getDataLength() { return getCmdDataLength() - RX_16_RESPONSE_HEAD; }
+
+
+uint8_t
+Rx64DataSample::getNSamples() { return _cmdData[14-CMD_DATA_OFFSET]; }
+uint16_t
+Rx64DataSample::getDigitalMask() { return (*((uint16_t*)&(_cmdData[15-CMD_DATA_OFFSET]))) & 0x1FF; }
+uint8_t
+Rx64DataSample::getAnalogMask() { return (_cmdData[15-CMD_DATA_OFFSET] >> 1) & 0x3F; }
+uint16_t
+Rx64DataSample::getDigitalSamples() {
+    if (getDigitalMask() > 0) return *((uint16_t*)&(_cmdData[17-CMD_DATA_OFFSET]));
+    return 0;
+}
+uint16_t*
+Rx64DataSample::getAnalogSamples() {
+    if (getDigitalMask() > 0) return ((uint16_t*)&(_cmdData[19-CMD_DATA_OFFSET]));
+    return ((uint16_t*)&(_cmdData[17-CMD_DATA_OFFSET]));
+}
+uint16_t
+Rx64DataSample::getAnalogSamplesLength() {
+    if (getDigitalMask() > 0) return (getCmdDataLength() - RX_64_DATA_SAMPLE_HEAD)/2;
+    return (2 + getCmdDataLength() - RX_64_DATA_SAMPLE_HEAD)/2;
+}
+
+
+uint8_t
+Rx16DataSample::getNSamples() { return _cmdData[8-CMD_DATA_OFFSET]; }
+uint16_t
+Rx16DataSample::getDigitalMask() { return (*((uint16_t*)&(_cmdData[9-CMD_DATA_OFFSET]))) & 0x1FF; }
+uint8_t
+Rx16DataSample::getAnalogMask() { return (_cmdData[9-CMD_DATA_OFFSET] >> 1) & 0x3F; }
+uint16_t
+Rx16DataSample::getDigitalSamples() {
+    if (getDigitalMask() > 0) return *((uint16_t*)&(_cmdData[11-CMD_DATA_OFFSET]));
+    return 0;
+}
+uint16_t*
+Rx16DataSample::getAnalogSamples() {
+    if (getDigitalMask() > 0) return ((uint16_t*)&(_cmdData[13-CMD_DATA_OFFSET]));
+    return ((uint16_t*)&(_cmdData[11-CMD_DATA_OFFSET]));
+}
+uint16_t
+Rx16DataSample::getAnalogSamplesLength() {
+    if (getDigitalMask() > 0) return (getCmdDataLength() - RX_16_DATA_SAMPLE_HEAD)/2;
+    return (2 + getCmdDataLength() - RX_16_DATA_SAMPLE_HEAD)/2;
+}
 
 
 uint16_t

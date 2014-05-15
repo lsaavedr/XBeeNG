@@ -66,6 +66,8 @@
 #define REMOTE_AT_COMMAND 0x17
 #define RX_64_RESPONSE 0x80
 #define RX_16_RESPONSE 0x81
+#define RX_64_DATA_SAMPLE 0x82
+#define RX_16_DATA_SAMPLE 0x83
 #define AT_COMMAND_RESPONSE 0x88
 #define TX_STATUS_RESPONSE 0x89
 #define MODEM_STATUS 0x8A
@@ -78,8 +80,6 @@
 #define RX_NODE_ID 0x95
 #define REMOTE_AT_COMMAND_RESPONSE 0x97
 // API Frame Names and Values Received from the Module:
-#define RX_64_IO_RESPONSE 0x82
-#define RX_16_IO_RESPONSE 0x83
 // Others:
 #define CREATE_SOURCE_ROUTE 0x21
 #define SENSOR_READ 0x94
@@ -679,6 +679,40 @@ public:
 
     uint8_t* getData();
     uint16_t getDataLength();
+};
+
+#define RX_64_DATA_SAMPLE_HEAD 15
+class Rx64DataSample : public Rx64Response {
+private:
+    uint8_t* getData();
+    uint16_t getDataLength();
+public:
+    uint8_t getNSamples();
+
+    uint16_t getDigitalMask();
+    uint8_t getAnalogMask();
+
+    uint16_t getDigitalSamples();
+
+    uint16_t* getAnalogSamples();
+    uint16_t getAnalogSamplesLength();
+};
+
+#define RX_16_DATA_SAMPLE_HEAD 9
+class Rx16DataSample : public Rx16Response {
+private:
+    uint8_t* getData();
+    uint16_t getDataLength();
+public:
+    uint8_t getNSamples();
+
+    uint16_t getDigitalMask();
+    uint8_t getAnalogMask();
+
+    uint16_t getDigitalSamples();
+
+    uint16_t* getAnalogSamples();
+    uint16_t getAnalogSamplesLength();
 };
 
 #define AT_COMMAND_RESPONSE_HEAD 4

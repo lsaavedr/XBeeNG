@@ -9,7 +9,3 @@
 - 0xA2 - RxDeviceAuthenticated
 - 0xA4 - RegisterJoiningDeviceStatus
 - 0x24 - RegisterJoiningDevice
-
-### In XB802:
-- 0x82 - RxDataSample64
-- 0x83 - RxDataSample16
