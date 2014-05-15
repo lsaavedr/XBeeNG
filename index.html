@@ -109,11 +109,49 @@
 </pre></div>
 
 <h3>
+<a name="basic-xb802-network-settings-p2p" class="anchor" href="#basic-xb802-network-settings-p2p"><span class="octicon octicon-link"></span></a>Basic XB802 Network Settings (P2P)</h3>
+
+<p>To understand the network setting in XB802 module see the <a href="http://ftp1.digi.com/support/documentation/90000982_N.pdf">user manual</a> (pag. 18).</p>
+
+<div class="highlight highlight-c++"><pre><span class="p">...</span>
+    <span class="c1">// Set the module to operate as an End Device (CE = 0)</span>
+    <span class="n">AtCommand</span> <span class="n">atCmd</span> <span class="o">=</span> <span class="n">AtCommand</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="s">"CE"</span><span class="p">,</span> <span class="p">{</span> <span class="mh">0x00</span> <span class="p">});</span>
+    <span class="n">xbng</span><span class="p">.</span><span class="n">send</span><span class="p">(</span><span class="n">atCmd</span><span class="p">);</span>
+
+    <span class="c1">// disabling End Device Association (A1 = 0)</span>
+    <span class="n">atCmd</span><span class="p">.</span><span class="n">setCmd</span><span class="p">(</span><span class="s">"A1"</span><span class="p">,</span> <span class="p">{</span> <span class="mh">0x00</span> <span class="p">});</span>
+    <span class="n">xbng</span><span class="p">.</span><span class="n">send</span><span class="p">(</span><span class="n">atCmd</span><span class="p">);</span>
+
+    <span class="c1">// Set the Network ID [ID] (range: 0-0xFFFF)</span>
+    <span class="n">atCmd</span><span class="p">.</span><span class="n">setCmd</span><span class="p">(</span><span class="s">"ID"</span><span class="p">,</span> <span class="p">{</span> <span class="mh">0x33</span><span class="p">,</span> <span class="mh">0x31</span> <span class="p">});</span>
+    <span class="n">xbng</span><span class="p">.</span><span class="n">send</span><span class="p">(</span><span class="n">atCmd</span><span class="p">);</span>
+
+    <span class="c1">// Set the Operating Channel [CH] (range: 0x0B-0x1A for XBee, and 0x0c-0x17 for XBee-PRO)</span>
+    <span class="n">atCmd</span><span class="p">.</span><span class="n">setCmd</span><span class="p">(</span><span class="s">"CH"</span><span class="p">,</span> <span class="p">{</span> <span class="mh">0x0F</span> <span class="p">});</span>
+    <span class="n">xbng</span><span class="p">.</span><span class="n">send</span><span class="p">(</span><span class="n">atCmd</span><span class="p">);</span>
+<span class="p">...</span>
+</pre></div>
+
+<h3>
 <a name="basic-sending-data-with-xb900hp-xb868-xbdm-xbzb" class="anchor" href="#basic-sending-data-with-xb900hp-xb868-xbdm-xbzb"><span class="octicon octicon-link"></span></a>Basic Sending Data (with XB900HP, XB868, XBDM, XBZB)</h3>
 
 <div class="highlight highlight-c++"><pre><span class="p">...</span>
     <span class="c1">// Sending { 0xDA, 0x7A } to address64: 0x0013A200 0x403E0F30</span>
     <span class="n">TxRequest</span> <span class="n">txReq</span> <span class="o">=</span> <span class="n">TxRequest</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mh">0x0013A200</span><span class="p">,</span> <span class="mh">0x403E0F30</span><span class="p">,</span> <span class="p">{</span> <span class="mh">0xDA</span><span class="p">,</span> <span class="mh">0x7A</span> <span class="p">}</span> <span class="p">);</span>
+    <span class="n">xbng</span><span class="p">.</span><span class="n">send</span><span class="p">(</span><span class="n">txReq</span><span class="p">);</span>
+<span class="p">...</span>
+</pre></div>
+
+<h3>
+<a name="basic-sending-data-with-xb802" class="anchor" href="#basic-sending-data-with-xb802"><span class="octicon octicon-link"></span></a>Basic Sending Data with XB802</h3>
+
+<div class="highlight highlight-c++"><pre><span class="p">...</span>
+    <span class="c1">// Sending { 0xDA, 0x7A } to address64: 0x0013A200 0x403E0F30</span>
+    <span class="n">Tx64Request</span> <span class="n">txReq</span> <span class="o">=</span> <span class="n">Tx64Request</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mh">0x0013A200</span><span class="p">,</span> <span class="mh">0x403E0F30</span><span class="p">,</span> <span class="p">{</span> <span class="mh">0xDA</span><span class="p">,</span> <span class="mh">0x7A</span> <span class="p">}</span> <span class="p">);</span>
+    <span class="n">xbng</span><span class="p">.</span><span class="n">send</span><span class="p">(</span><span class="n">txReq</span><span class="p">);</span>
+
+    <span class="c1">// Sending { 0xBE, 0xBE } to address16: 0x403E0F30</span>
+    <span class="n">Tx16Request</span> <span class="n">txReq</span> <span class="o">=</span> <span class="n">Tx16Request</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mh">0x403E0F30</span><span class="p">,</span> <span class="p">{</span> <span class="mh">0xBE</span><span class="p">,</span> <span class="mh">0xBE</span> <span class="p">}</span> <span class="p">);</span>
     <span class="n">xbng</span><span class="p">.</span><span class="n">send</span><span class="p">(</span><span class="n">txReq</span><span class="p">);</span>
 <span class="p">...</span>
 </pre></div>
