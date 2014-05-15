@@ -11,9 +11,5 @@
 - 0x24 - RegisterJoiningDevice
 
 ### In XB802:
-- 0x00 - TxRequest64
-- 0x01 - TxRequest16
-- 0x80 - RxResponse64
-- 0x81 - RxResponse16
 - 0x82 - RxDataSample64
 - 0x83 - RxDataSample16
