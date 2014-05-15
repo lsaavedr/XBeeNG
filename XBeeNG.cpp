@@ -689,6 +689,7 @@ TxRxFrameIdDescription::setAddress64(const uint32_t& address64Msb, const uint32_
     address64[5] = (address64Lsb >> 16) & 0xff;
     address64[6] = (address64Lsb >> 8) & 0xff;
     address64[7] = address64Lsb & 0xff;
+
     if (performChecksum) setChecksum();
 }
 void
@@ -703,6 +704,7 @@ TxRxFrameIdDescription::setAddress16(const uint16_t& address16, bool performChec
     uint8_t* address16ptr = &(_cmdData[13-CMD_DATA_OFFSET]);
     address16ptr[0] = (address16 >> 8) & 0xff;
     address16ptr[1] = address16 & 0xff;
+
     if (performChecksum) setChecksum();
 }
 void
@@ -784,6 +786,7 @@ Tx64Request::getOptions() { return _cmdData[13-CMD_DATA_OFFSET]; }
 void
 Tx64Request::setOptions(const uint8_t& options, const bool& performChecksum) {
     _cmdData[13-CMD_DATA_OFFSET] = options;
+
     if (performChecksum) setChecksum();
 }
 void
@@ -831,8 +834,7 @@ Tx64Request::setData(const char* data, const bool& performChecksum) {
         for (uint16_t i = 0; i < TX_64_REQUEST_HEAD; i++) _cmdData[i] = head[i];
     }
 
-    for (uint16_t i = 0; i < dataLength; i++)
-        _cmdData[TX_64_REQUEST_HEAD+i] = data[i];
+    for (uint16_t i = 0; i < dataLength; i++) _cmdData[TX_64_REQUEST_HEAD+i] = data[i];
 
     if (performChecksum) setChecksum();
 }
@@ -942,6 +944,7 @@ Tx16Request::setAddress16(const uint16_t& address16, const bool& performChecksum
     uint8_t* address16ptr = &(_cmdData[5-CMD_DATA_OFFSET]);
     address16ptr[0] = (address16 >> 8) & 0xff;
     address16ptr[1] = address16 & 0xff;
+
     if (performChecksum) setChecksum();
 }
 void
@@ -954,6 +957,7 @@ Tx16Request::getOptions() { return _cmdData[7-CMD_DATA_OFFSET]; }
 void
 Tx16Request::setOptions(const uint8_t& options, const bool& performChecksum) {
     _cmdData[7-CMD_DATA_OFFSET] = options;
+
     if (performChecksum) setChecksum();
 }
 void
@@ -1123,6 +1127,7 @@ void
 AtCommand::setCmd(const uint16_t& cmd, const bool& performChecksum) {
     _cmdData[1] = ((uint8_t*)&cmd)[0];
     _cmdData[2] = ((uint8_t*)&cmd)[1];
+
     if (performChecksum) setChecksum();
 }
 void
@@ -1133,6 +1138,7 @@ void
 AtCommand::setCmd(const char (&cmd)[3], const bool& performChecksum) {
     _cmdData[1] = cmd[0];
     _cmdData[2] = cmd[1];
+
     if (performChecksum) setChecksum();
 }
 void
@@ -1145,6 +1151,7 @@ AtCommand::setCmd(const char (&cmd)[3], const std::initializer_list<uint8_t>& pa
     const bool& performChecksum) {
     setCmd(cmd, false);
     setParam(param, false);
+
     if (performChecksum) setChecksum();
 }
 void
@@ -1193,13 +1200,9 @@ AtCommand::setParam(const char* param, const bool& performChecksum) {
         for (uint16_t i = 0; i < AT_COMMAND_HEAD; i++) _cmdData[i] = head[i];
     }
 
-    for (uint16_t i = 0; i < paramLength; i++) {
-        if ('9' >= param[i] && param[i] >= '0')
-            _cmdData[AT_COMMAND_HEAD+i] = param[i] - '0';
-        else
-            _cmdData[AT_COMMAND_HEAD+i] = param[i];
-    }
-    setChecksum();
+    for (uint16_t i = 0; i < paramLength; i++) _cmdData[AT_COMMAND_HEAD+i] = param[i];
+
+    if (performChecksum) setChecksum();
 }
 void
 AtCommand::setParam(const char* param) {
@@ -1355,8 +1358,8 @@ uint8_t
 TxRequest::getBroadcast() { return _cmdData[15-CMD_DATA_OFFSET]; }
 void
 TxRequest::setBroadcast(const uint8_t& broadcast, const bool& performChecksum) {
-    uint8_t* broadcastptr = &(_cmdData[15-CMD_DATA_OFFSET]);
-    broadcastptr[0] = broadcast;
+    _cmdData[15-CMD_DATA_OFFSET] = broadcast;
+
     if (performChecksum) setChecksum();
 }
 void
@@ -1369,6 +1372,7 @@ TxRequest::getOptions() { return _cmdData[16-CMD_DATA_OFFSET]; }
 void
 TxRequest::setOptions(const uint8_t& options, const bool& performChecksum) {
     _cmdData[16-CMD_DATA_OFFSET] = options;
+
     if (performChecksum) setChecksum();
 }
 void
@@ -1446,12 +1450,7 @@ TxRequest::setData(const char* data, const bool& performChecksum) {
         for (uint16_t i = 0; i < TX_REQUEST_HEAD; i++) _cmdData[i] = head[i];
     }
 
-    for (uint16_t i = 0; i < dataLength; i++) {
-        if ('9' >= data[i] && data[i] >= '0')
-            _cmdData[TX_REQUEST_HEAD+i] = data[i]-'0';
-        else
-            _cmdData[TX_REQUEST_HEAD+i] = data[i];
-    }
+    for (uint16_t i = 0; i < dataLength; i++) _cmdData[TX_REQUEST_HEAD+i] = data[i];
 
     if (performChecksum) setChecksum();
 }
@@ -1616,8 +1615,7 @@ uint8_t
 ExplicitTxRequest::getSourceEndpoint() { return _cmdData[15-CMD_DATA_OFFSET]; }
 void
 ExplicitTxRequest::setSourceEndpoint(const uint8_t& sourceEndpoint, const bool& performChecksum) {
-    uint8_t* sourceEndpointptr = &(_cmdData[15-CMD_DATA_OFFSET]);
-    sourceEndpointptr[0] = sourceEndpoint;
+    _cmdData[15-CMD_DATA_OFFSET] = sourceEndpoint;
 
     if (performChecksum) setChecksum();
 }
@@ -1630,8 +1628,7 @@ uint8_t
 ExplicitTxRequest::getDestinationEndpoint() { return _cmdData[16-CMD_DATA_OFFSET]; }
 void
 ExplicitTxRequest::setDestinationEndpoint(const uint8_t& destinationEndpoint, const bool& performChecksum) {
-    uint8_t* destinationEndpointptr = &(_cmdData[16-CMD_DATA_OFFSET]);
-    destinationEndpointptr[0] = destinationEndpoint;
+    _cmdData[16-CMD_DATA_OFFSET] = destinationEndpoint;
 
     if (performChecksum) setChecksum();
 }
@@ -1647,6 +1644,7 @@ ExplicitTxRequest::setClusterId(const uint16_t& clusterId, const bool& performCh
     uint8_t* clusterIdptr = &(_cmdData[17-CMD_DATA_OFFSET]);
     clusterIdptr[0] = (clusterId >> 8) & 0xff;
     clusterIdptr[1] = clusterId & 0xff;
+
     if (performChecksum) setChecksum();
 }
 void
@@ -1661,6 +1659,7 @@ ExplicitTxRequest::setProfileId(const uint16_t& profileId, const bool& performCh
     uint8_t* profileIdptr = &(_cmdData[19-CMD_DATA_OFFSET]);
     profileIdptr[0] = (profileId >> 8) & 0xff;
     profileIdptr[1] = profileId & 0xff;
+
     if (performChecksum) setChecksum();
 }
 void
@@ -1672,8 +1671,7 @@ uint8_t
 ExplicitTxRequest::getBroadcast() { return _cmdData[21-CMD_DATA_OFFSET]; }
 void
 ExplicitTxRequest::setBroadcast(const uint8_t& broadcast, const bool& performChecksum) {
-    uint8_t* broadcastptr = &(_cmdData[21-CMD_DATA_OFFSET]);
-    broadcastptr[0] = broadcast;
+    _cmdData[21-CMD_DATA_OFFSET] = broadcast;
 
     if (performChecksum) setChecksum();
 }
@@ -1687,6 +1685,7 @@ ExplicitTxRequest::getOptions() { return _cmdData[22-CMD_DATA_OFFSET]; }
 void
 ExplicitTxRequest::setOptions(const uint8_t& options, const bool& performChecksum) {
     _cmdData[22-CMD_DATA_OFFSET] = options;
+
     if (performChecksum) setChecksum();
 }
 void
@@ -1737,12 +1736,7 @@ ExplicitTxRequest::setData(const char* data, const bool& performChecksum) {
         for (uint16_t i = 0; i < EXPLICIT_TX_REQUEST_HEAD; i++) _cmdData[i] = head[i];
     }
 
-    for (uint16_t i = 0; i < dataLength; i++) {
-        if ('9' >= data[i] && data[i] >= '0')
-            _cmdData[EXPLICIT_TX_REQUEST_HEAD+i] = data[i]-'0';
-        else
-            _cmdData[EXPLICIT_TX_REQUEST_HEAD+i] = data[i];
-    }
+    for (uint16_t i = 0; i < dataLength; i++) _cmdData[EXPLICIT_TX_REQUEST_HEAD+i] = data[i];
 
     if (performChecksum) setChecksum();
 }
@@ -1885,6 +1879,7 @@ RemoteAtCommand::getOptions() { return _cmdData[15-CMD_DATA_OFFSET]; }
 void
 RemoteAtCommand::setOptions(const uint8_t& options, const bool& performChecksum) {
     _cmdData[15-CMD_DATA_OFFSET] = options;
+
     if (performChecksum) setChecksum();
 }
 void
@@ -1898,6 +1893,7 @@ void
 RemoteAtCommand::setCmd(const uint16_t& cmd, const bool& performChecksum) {
     uint16_t* cmdptr = (uint16_t*)&(_cmdData[16-CMD_DATA_OFFSET]);
     cmdptr[0] = cmd;
+
     if (performChecksum) setChecksum();
 }
 void
@@ -1920,12 +1916,7 @@ RemoteAtCommand::setCmd(const char* cmd, const bool& performChecksum) {
         for (uint16_t i = 0; i < REMOTE_AT_COMMAND_HEAD-2; i++) _cmdData[i] = head[i];
     }
 
-    for (int i = 0; i < cmdLength; i++) {
-        if ('9' >= cmd[i] && cmd[i] >= '0')
-            _cmdData[(REMOTE_AT_COMMAND_HEAD-2)+i] = cmd[i]-'0';
-        else
-            _cmdData[(REMOTE_AT_COMMAND_HEAD-2)+i] = cmd[i];
-    }
+    for (int i = 0; i < cmdLength; i++) _cmdData[(REMOTE_AT_COMMAND_HEAD-2)+i] = cmd[i];
 
     if (performChecksum) setChecksum();
 }
