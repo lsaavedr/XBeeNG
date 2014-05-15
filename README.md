@@ -68,7 +68,15 @@ To understand the network setting in XB802 module see the [user manual](http://f
 ...
 	// Set the module to operate as an End Device (CE = 0)
     AtCommand atCmd = AtCommand(1, "CE", { 0x00 });
+    xbng.send(atCmd);
 
+	// disabling End Device Association (A1 = 0)
+    atCmd.setCmd("A1", { 0x00 });
+    xbng.send(atCmd);
+
+	// Set the Network ID [ID] (range: 0-0xFFFF)
+    atCmd.setCmd("ID", { 0x33, 0x31 });
+    xbng.send(atCmd);
 ...
 ```
 
