@@ -56,7 +56,7 @@
  */
 #define MAX_CMD_DATA_SIZE 110
 
-// API Frame Names
+// API Frame Names:
 #define TX_64_REQUEST 0x00
 #define TX_16_REQUEST 0x01
 #define AT_COMMAND 0x08
@@ -64,6 +64,7 @@
 #define TX_REQUEST 0x10
 #define EXPLICIT_TX_REQUEST 0x11
 #define REMOTE_AT_COMMAND 0x17
+#define CREATE_SOURCE_ROUTE 0x21
 #define RX_64_RESPONSE 0x80
 #define RX_16_RESPONSE 0x81
 #define RX_64_DATA_SAMPLE 0x82
@@ -79,9 +80,7 @@
 #define RX_DATA_SAMPLE 0x92
 #define RX_NODE_ID 0x95
 #define REMOTE_AT_COMMAND_RESPONSE 0x97
-// API Frame Names and Values Received from the Module:
-// Others:
-#define CREATE_SOURCE_ROUTE 0x21
+// ToDo API Frame Names:
 #define SENSOR_READ 0x94
 #define OTA_FIRMWARE_UPDATE_STATUS 0xa0
 #define ROUTE_RECORD 0xa1
@@ -655,6 +654,44 @@ private:
     void setCmd(const uint16_t& cmd, const bool& performChecksum);
     void setCmd(const char* cmd, const bool& performChecksum);
     void setParam(const uint8_t* param, const uint16_t& paramLength, const bool& performChecksum);
+};
+
+#define CREATE_SOURCE_ROUTE_HEAD 13
+class CreateSourceRoute : public TxRxFrameIdDescription {
+public:
+    CreateSourceRoute(const uint8_t& frameId,
+    const uint32_t& address64Msb, const uint32_t& address64Lsb,
+    const uint16_t& address16,
+    const uint16_t* addresses, const uint8_t& nAddresses);
+    CreateSourceRoute(const uint8_t& frameId,
+    const uint32_t& address64Msb, const uint32_t& address64Lsb,
+    const uint16_t* addresses, const uint8_t& nAddresses);
+    CreateSourceRoute(const uint8_t& frameId,
+    const uint16_t* addresses, const uint8_t& nAddresses);
+
+#ifdef XBEENG_WITH_EXTRAS
+    CreateSourceRoute(const uint8_t& frameId,
+    const uint32_t& address64Msb, const uint32_t& address64Lsb,
+    const uint16_t& address16,
+    const std::initializer_list<uint16_t>& addresses);
+    CreateSourceRoute(const uint8_t& frameId,
+    const uint32_t& address64Msb, const uint32_t& address64Lsb,
+    const std::initializer_list<uint16_t>& addresses);
+    CreateSourceRoute(const uint8_t& frameId,
+    const std::initializer_list<uint16_t>& addresses);
+#endif
+
+    uint16_t* getAddresses();
+    void setAddresses(const uint16_t* addresses, const uint8_t& nAddresses);
+#ifdef XBEENG_WITH_EXTRAS
+    void setAddresses(const std::initializer_list<uint16_t>& addresses);
+#endif
+    uint8_t getNAddresses();
+private:
+    void setAddresses(const uint16_t* addresses, const uint8_t& nAddresses, const bool& performChecksum);
+#ifdef XBEENG_WITH_EXTRAS
+    void setAddresses(const std::initializer_list<uint16_t>& addresses, const bool& performChecksum);
+#endif
 };
 
 #define RX_64_RESPONSE_HEAD 10

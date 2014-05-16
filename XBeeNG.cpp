@@ -2049,6 +2049,121 @@ uint16_t
 RemoteAtCommand::getParamLength() { return getCmdDataLength() - REMOTE_AT_COMMAND_HEAD; }
 
 
+CreateSourceRoute::CreateSourceRoute(const uint8_t& frameId,
+    const uint32_t& address64Msb, const uint32_t& address64Lsb,
+    const uint16_t& address16,
+    const uint16_t* addresses, const uint8_t& nAddresses) {
+
+    _cmdId = CREATE_SOURCE_ROUTE;
+    _cmdData = new uint8_t[CREATE_SOURCE_ROUTE_HEAD+2*nAddresses];
+
+    setCmdDataLength(CREATE_SOURCE_ROUTE_HEAD+2*nAddresses);
+    setFrameId(frameId);
+    setAddress64(address64Msb, address64Lsb, false);
+    setAddress16(address16, false);
+    setAddresses(addresses, nAddresses, false);
+    setChecksum();
+}
+CreateSourceRoute::CreateSourceRoute(const uint8_t& frameId,
+    const uint32_t& address64Msb, const uint32_t& address64Lsb,
+    const uint16_t* addresses, const uint8_t& nAddresses):
+    CreateSourceRoute(frameId, address64Msb, address64Lsb,
+    BROADCAST_ADDRESS16, addresses, nAddresses) {}
+CreateSourceRoute::CreateSourceRoute(const uint8_t& frameId,
+    const uint16_t* addresses, const uint8_t& nAddresses):
+    CreateSourceRoute(frameId, 0, BROADCAST_ADDRESS64,
+    addresses, nAddresses) {}
+
+#ifdef XBEENG_WITH_EXTRAS
+CreateSourceRoute::CreateSourceRoute(const uint8_t& frameId,
+    const uint32_t& address64Msb, const uint32_t& address64Lsb,
+    const uint16_t& address16,
+    const std::initializer_list<uint16_t>& addresses) {
+
+    uint8_t nAddresses = addresses.size();
+    _cmdId = CREATE_SOURCE_ROUTE;
+    _cmdData = new uint8_t[CREATE_SOURCE_ROUTE_HEAD+2*nAddresses];
+
+    setCmdDataLength(CREATE_SOURCE_ROUTE_HEAD+2*nAddresses);
+    setFrameId(frameId);
+    setAddress64(address64Msb, address64Lsb, false);
+    setAddress16(address16, false);
+    setAddresses(addresses, false);
+    setChecksum();
+}
+CreateSourceRoute::CreateSourceRoute(const uint8_t& frameId,
+    const uint32_t& address64Msb, const uint32_t& address64Lsb,
+    const std::initializer_list<uint16_t>& addresses):
+    CreateSourceRoute(frameId, address64Msb, address64Lsb,
+    BROADCAST_ADDRESS16, addresses) {}
+CreateSourceRoute::CreateSourceRoute(const uint8_t& frameId,
+    const std::initializer_list<uint16_t>& addresses):
+    CreateSourceRoute(frameId, 0, BROADCAST_ADDRESS64, addresses) {}
+#endif
+
+uint16_t*
+CreateSourceRoute::getAddresses() { return (uint16_t*)&(_cmdData[17-CMD_DATA_OFFSET]); }
+void
+CreateSourceRoute::setAddresses(const uint16_t* addresses, const uint8_t& nAddresses,
+    const bool& performChecksum) {
+    if ((getCmdDataLength() - CREATE_SOURCE_ROUTE_HEAD) != 2*nAddresses) {
+        uint8_t head[CREATE_SOURCE_ROUTE_HEAD];
+        for (uint16_t i = 0; i < CREATE_SOURCE_ROUTE_HEAD; i++) head[i] = _cmdData[i];
+
+        delete[] _cmdData;
+        _cmdData = new uint8_t[CREATE_SOURCE_ROUTE_HEAD+2*nAddresses];
+        setCmdDataLength(CREATE_SOURCE_ROUTE_HEAD+2*nAddresses);
+
+        for (uint16_t i = 0; i < CREATE_SOURCE_ROUTE_HEAD; i++) _cmdData[i] = head[i];
+    }
+
+    _cmdData[16-CMD_DATA_OFFSET] = nAddresses;
+
+    for (uint16_t i = 0; i < nAddresses; i++) {
+        _cmdData[CREATE_SOURCE_ROUTE_HEAD+2*i] = (addresses[i] >> 8) & 0xFF;
+        _cmdData[CREATE_SOURCE_ROUTE_HEAD+2*i+1] = addresses[i] & 0xFF;
+    }
+
+    if (performChecksum) setChecksum();
+}
+void
+CreateSourceRoute::setAddresses(const uint16_t* addresses, const uint8_t& nAddresses) {
+    setAddresses(addresses, nAddresses, true);
+}
+void
+CreateSourceRoute::setAddresses(const std::initializer_list<uint16_t>& addresses,
+    const bool& performChecksum) {
+    uint8_t nAddresses = addresses.size();
+
+    if ((getCmdDataLength() - CREATE_SOURCE_ROUTE_HEAD) != 2*nAddresses) {
+        uint8_t head[CREATE_SOURCE_ROUTE_HEAD];
+        for (uint16_t i = 0; i < CREATE_SOURCE_ROUTE_HEAD; i++) head[i] = _cmdData[i];
+
+        delete[] _cmdData;
+        _cmdData = new uint8_t[CREATE_SOURCE_ROUTE_HEAD+2*nAddresses];
+        setCmdDataLength(CREATE_SOURCE_ROUTE_HEAD+2*nAddresses);
+
+        for (uint16_t i = 0; i < CREATE_SOURCE_ROUTE_HEAD; i++) _cmdData[i] = head[i];
+    }
+
+    _cmdData[16-CMD_DATA_OFFSET] = nAddresses;
+
+    uint16_t i = 0;
+    for (uint16_t address : addresses) {
+        _cmdData[CREATE_SOURCE_ROUTE_HEAD+(i++)] = (address >> 8) & 0xFF;
+        _cmdData[CREATE_SOURCE_ROUTE_HEAD+(i++)] = address & 0xFF;
+    }
+
+    if (performChecksum) setChecksum();
+}
+void
+CreateSourceRoute::setAddresses(const std::initializer_list<uint16_t>& addresses) {
+    setAddresses(addresses, true);
+}
+uint8_t
+CreateSourceRoute::getNAddresses() { return _cmdData[16-CMD_DATA_OFFSET]; }
+
+
 uint8_t
 Rx64Response::getRssi() { return _cmdData[12-CMD_DATA_OFFSET]; }
 uint8_t
