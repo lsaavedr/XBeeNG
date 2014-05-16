@@ -115,6 +115,12 @@ getDigitalSamples	KEYWORD2
 getAnalogSamples	KEYWORD2
 getAnalogSamplesLength	KEYWORD2
 
+RX_SENSOR_READ	LITERAL1
+RxSensorRead	KEYWORD1
+get1WireSensors	KEYWORD2
+getADValues	KEYWORD2
+getTemp	KEYWORD2
+
 RX_NODE_ID	LITERAL1
 RxNodeId	KEYWORD1
 getSourceAddress16	KEYWORD2

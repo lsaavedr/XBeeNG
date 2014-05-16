@@ -78,31 +78,26 @@
 #define RX_RESPONSE 0x90
 #define EXPLICIT_RX_RESPONSE 0x91
 #define RX_DATA_SAMPLE 0x92
+#define RX_SENSOR_READ 0x94
 #define RX_NODE_ID 0x95
 #define REMOTE_AT_COMMAND_RESPONSE 0x97
 // ToDo API Frame Names:
-#define SENSOR_READ 0x94
 #define OTA_FIRMWARE_UPDATE_STATUS 0xa0
-#define ROUTE_RECORD 0xa1
-#define MTO_ROUTE_REQUEST 0xa3
-
-#define RESERVED_LENGTH 2
-#define RADIUS 0x00
-#define RESERVED_1 0xFF
-#define RESERVED_2 0xFE
-#define TX_API_LENGTH 12
-#define DM_RSSI_OFFSET 8
-//no actual RSSI byte in the packet, 2 bytes before data starts
+#define RX_ROUTE_RECORD 0xa1
+#define RX_MTO_ROUTE_REQUEST 0xa3
+#define RX_DEVICE_AUTHENTICATED 0xa2
+#define REGISTER_JOINING_DEVICE_STATUS 0xa4
+#define REGISTER_JOINING_DEVICE 0x24
 
 /**
  * TX STATUS constants
  */
-#define    SUCCESS 0x0
+#define SUCCESS 0x0
 #define CCA_FAILURE 0x2
 #define INVALID_DESTINATION_ENDPOINT_SUCCESS 0x15
-#define    NETWORK_ACK_FAILURE 0x21
+#define NETWORK_ACK_FAILURE 0x21
 #define NOT_JOINED_TO_NETWORK 0x22
-#define    SELF_ADDRESSED 0x23
+#define SELF_ADDRESSED 0x23
 #define ADDRESS_NOT_FOUND 0x24
 #define ROUTE_NOT_FOUND 0x25
 #define PAYLOAD_TOO_LARGE 0x74
@@ -115,11 +110,6 @@
 #define SYNCHRONIZATION_LOST 4
 #define COORDINATOR_REALIGNMENT 5
 #define COORDINATOR_STARTED 6
-
-#define ZB_BROADCAST_RADIUS_MAX_HOPS 0
-
-#define ZB_TX_UNICAST 0
-#define ZB_TX_BROADCAST 8
 
 //page 57 DM datasheet
 #define AT_OK 0
@@ -855,6 +845,16 @@ public:
 
     uint16_t* getAnalogSamples();
     uint16_t getAnalogSamplesLength();
+};
+
+#define RX_SENSOR_READ_HEAD 22
+class RxSensorRead : public TxRxXBeeApiFrame {
+public:
+    uint8_t getOptions();
+    uint8_t get1WireSensors();
+
+    uint16_t* getADValues();
+    uint16_t getTemp();
 };
 
 #define RX_NODE_ID_HEAD 29

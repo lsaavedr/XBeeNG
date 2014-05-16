@@ -1,7 +1,6 @@
 ## ToDo List with API Frames to be implemented:
 
 ### In XBZB:
-- 0x94 - RxSensorRead
 - 0xA0 - OtaFirmwareUpdateStatus
 - 0xA1 - RxRouteRecord
 - 0xA3 - RxMtoRouteRequest

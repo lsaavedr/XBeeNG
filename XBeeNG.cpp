@@ -145,7 +145,7 @@ XBeeApiFrame::printSummary(Stream& strm) {
     }
     // All TxRxXBeeApiFrame descendants
     if (_cmdId == RX_64_RESPONSE || _cmdId == RX_RESPONSE || _cmdId == EXPLICIT_RX_RESPONSE ||
-        _cmdId == RX_DATA_SAMPLE || _cmdId == RX_NODE_ID) {
+        _cmdId == RX_DATA_SAMPLE || _cmdId == RX_SENSOR_READ || _cmdId == RX_NODE_ID) {
         TxRxXBeeApiFrame* pt = static_cast<TxRxXBeeApiFrame*>(this);
         strm.print(F("Address64Msb: "));
         uint32_t address64Msb = pt->getAddress64Msb(); uint8_t* address64MsbPtr = (uint8_t*)&address64Msb;
@@ -674,6 +674,23 @@ XBeeApiFrame::printSummary(Stream& strm) {
             }
         }
 
+        strm.print('\r');
+    } break;
+    case RX_SENSOR_READ: {
+        RxSensorRead* pt = static_cast<RxSensorRead*>(this);
+        strm.print(F("Options: ")); printHex(strm, pt->getOptions()); strm.print('\r');
+        strm.print(F("1-Wire Sensors: ")); printHex(strm, pt->get1WireSensors()); strm.print('\r');
+        strm.print(F("A/D Values: "));
+        uint8_t* aDValues = (uint8_t*)pt->getADValues();
+        for (uint8_t i = 0; i < 4; i++) {
+          printHex(strm, aDValues[i]);
+          strm.print(F(" "));
+          printHex(strm, aDValues[i+1]);
+          if (i != 3) strm.print(F("  "));
+          else strm.print('\r');
+        }
+        uint16_t temp = pt->getTemp(); uint8_t* tempPtr = (uint8_t*)&temp;
+        printHex(strm, tempPtr[0]); strm.print(F(" ")); printHex(strm, tempPtr[1]); strm.print('\r');
         strm.print('\r');
     } break;
     case RX_NODE_ID: {
@@ -2380,6 +2397,17 @@ RxDataSample::getAnalogSamplesLength() {
     if (getDigitalMask() > 0) return (getCmdDataLength() - RX_DATA_SAMPLE_HEAD)/2;
     return (2 + getCmdDataLength() - RX_DATA_SAMPLE_HEAD)/2;
 }
+
+
+uint8_t
+RxSensorRead::getOptions() { return _cmdData[14-CMD_DATA_OFFSET]; }
+uint8_t
+RxSensorRead::get1WireSensors() { return _cmdData[15-CMD_DATA_OFFSET]; }
+
+uint16_t*
+RxSensorRead::getADValues() { return ((uint16_t*)&(_cmdData[16-CMD_DATA_OFFSET])); }
+uint16_t
+RxSensorRead::getTemp() { return *((uint16_t*)&(_cmdData[24-CMD_DATA_OFFSET])); }
 
 
 uint16_t
