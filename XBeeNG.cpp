@@ -108,14 +108,15 @@ XBeeApiFrame::printSummary(Stream& strm) {
     if (_cmdId == TX_64_REQUEST || _cmdId == TX_16_REQUEST ||
         _cmdId == AT_COMMAND || _cmdId == AT_QUEUE_COMMAND ||
         _cmdId == TX_REQUEST || _cmdId == EXPLICIT_TX_REQUEST ||
-        _cmdId == REMOTE_AT_COMMAND || _cmdId == AT_COMMAND_RESPONSE ||
-        _cmdId == TX_STATUS_RESPONSE ||
+        _cmdId == REMOTE_AT_COMMAND || _cmdId == CREATE_SOURCE_ROUTE ||
+        _cmdId == AT_COMMAND_RESPONSE || _cmdId == TX_STATUS_RESPONSE ||
         _cmdId == TX_STATUS || _cmdId == REMOTE_AT_COMMAND_RESPONSE) {
         FrameIdDescription* pt = static_cast<FrameIdDescription*>(this);
         strm.print(F("Frame ID: ")); printHex(strm, pt->getFrameId()); strm.print('\r');
         // All TxRxFrameIdDescription descendants:
-        if (_cmdId == TX_64_REQUEST || _cmdId == TX_REQUEST || _cmdId == EXPLICIT_TX_REQUEST ||
-            _cmdId == REMOTE_AT_COMMAND || _cmdId == REMOTE_AT_COMMAND_RESPONSE) {
+        if (_cmdId == TX_64_REQUEST || _cmdId == TX_REQUEST ||
+            _cmdId == EXPLICIT_TX_REQUEST || _cmdId == REMOTE_AT_COMMAND ||
+            _cmdId == CREATE_SOURCE_ROUTE || _cmdId == REMOTE_AT_COMMAND_RESPONSE) {
             TxRxFrameIdDescription* xpt = static_cast<TxRxFrameIdDescription*>(this);
             strm.print(F("Address64Msb: "));
             uint32_t address64Msb = xpt->getAddress64Msb(); uint8_t* address64MsbPtr = (uint8_t*)&address64Msb;
@@ -179,7 +180,7 @@ XBeeApiFrame::printSummary(Stream& strm) {
         uint8_t* data = pt->getData();
         uint16_t dataLength = pt->getDataLength();
         if (dataLength > 0) strm.print(F("Data: "));
-        for (int i = 0; i < dataLength; i++) {
+        for (uint16_t i = 0; i < dataLength; i++) {
             printHex(strm, data[i]);
             if (i != (dataLength-1)) strm.print(F(" "));
             else strm.print('\r');
@@ -200,7 +201,7 @@ XBeeApiFrame::printSummary(Stream& strm) {
         uint8_t* data = pt->getData();
         uint16_t dataLength = pt->getDataLength();
         if (dataLength > 0) strm.print(F("Data: "));
-        for (int i = 0; i < dataLength; i++) {
+        for (uint16_t i = 0; i < dataLength; i++) {
             printHex(strm, data[i]);
             if (i != (dataLength-1)) strm.print(F(" "));
             else strm.print('\r');
@@ -219,7 +220,7 @@ XBeeApiFrame::printSummary(Stream& strm) {
         uint8_t* param = pt->getParam();
         uint16_t paramLength = pt->getParamLength();
         if (paramLength > 0) strm.print(F("Parameter: "));
-        for (int i = 0; i < paramLength; i++) {
+        for (uint16_t i = 0; i < paramLength; i++) {
             printHex(strm, param[i]);
             if (i != (paramLength-1)) strm.print(F(" "));
             else strm.print('\r');
@@ -234,7 +235,7 @@ XBeeApiFrame::printSummary(Stream& strm) {
         uint8_t* data = pt->getData();
         uint16_t dataLength = pt->getDataLength();
         if (dataLength > 0) strm.print(F("Data: "));
-        for (int i = 0; i < dataLength; i++) {
+        for (uint16_t i = 0; i < dataLength; i++) {
             printHex(strm, data[i]);
             if (i != (dataLength-1)) strm.print(F(" "));
             else strm.print('\r');
@@ -265,7 +266,7 @@ XBeeApiFrame::printSummary(Stream& strm) {
         uint8_t* data = pt->getData();
         uint16_t dataLength = pt->getDataLength();
         if (dataLength > 0) strm.print(F("Data: "));
-        for (int i = 0; i < dataLength; i++) {
+        for (uint16_t i = 0; i < dataLength; i++) {
             printHex(strm, data[i]);
             if (i != (dataLength-1)) strm.print(F(" "));
             else strm.print('\r');
@@ -284,9 +285,25 @@ XBeeApiFrame::printSummary(Stream& strm) {
         uint8_t* param = pt->getParam();
         uint16_t paramLength = pt->getParamLength();
         if (paramLength > 0) strm.print(F("Parameter: "));
-        for (int i = 0; i < paramLength; i++) {
+        for (uint16_t i = 0; i < paramLength; i++) {
             printHex(strm, param[i]);
             if (i != (paramLength-1)) strm.print(F(" "));
+            else strm.print('\r');
+        }
+        strm.print('\r');
+    } break;
+    case CREATE_SOURCE_ROUTE: {
+        CreateSourceRoute* pt = static_cast<CreateSourceRoute*>(this);
+        strm.print(F("Number of Addresses: ")); printHex(strm, pt->getNAddresses()); strm.print('\r');
+
+        uint16_t* addresses = pt->getAddresses();
+        uint8_t nAddresses = pt->getNAddresses();
+        if (nAddresses > 0) strm.print(F("Addresses: "));
+        for (uint8_t i = 0; i < nAddresses; i++) {
+            printHex(strm, (addresses[i]>>8) & 0xFF);
+            strm.print(F(" "));
+            printHex(strm, addresses[i] & 0xFF);
+            if (i != (nAddresses-1)) strm.print(F("  "));
             else strm.print('\r');
         }
         strm.print('\r');
@@ -299,7 +316,7 @@ XBeeApiFrame::printSummary(Stream& strm) {
         uint8_t* data = pt->getData();
         uint16_t dataLength = pt->getDataLength();
         if (dataLength > 0) strm.print(F("Data: "));
-        for (int i = 0; i < dataLength; i++) {
+        for (uint16_t i = 0; i < dataLength; i++) {
             printHex(strm, data[i]);
             if (i != (dataLength-1)) strm.print(F(" "));
             else strm.print('\r');
@@ -321,7 +338,7 @@ XBeeApiFrame::printSummary(Stream& strm) {
         uint8_t* data = pt->getData();
         uint16_t dataLength = pt->getDataLength();
         if (dataLength > 0) strm.print(F("Data: "));
-        for (int i = 0; i < dataLength; i++) {
+        for (uint16_t i = 0; i < dataLength; i++) {
             printHex(strm, data[i]);
             if (i != (dataLength-1)) strm.print(F(" "));
             else strm.print('\r');
@@ -356,7 +373,7 @@ XBeeApiFrame::printSummary(Stream& strm) {
             uint16_t* analogSamples = pt->getAnalogSamples();
             uint16_t analogSamplesLength = pt->getAnalogSamplesLength();
             if (analogSamplesLength > 0) strm.print(F("Analog Samples: "));
-            for (int i = 0; i < analogSamplesLength; i++) {
+            for (uint16_t i = 0; i < analogSamplesLength; i++) {
                 uint8_t* analogSample = (uint8_t*)&(analogSamples[i]);
                 for (uint8_t j = 0; j < 2; j++) {
                     printHex(strm, analogSample[j]);
@@ -404,7 +421,7 @@ XBeeApiFrame::printSummary(Stream& strm) {
             uint16_t* analogSamples = pt->getAnalogSamples();
             uint16_t analogSamplesLength = pt->getAnalogSamplesLength();
             if (analogSamplesLength > 0) strm.print(F("Analog Samples: "));
-            for (int i = 0; i < analogSamplesLength; i++) {
+            for (uint16_t i = 0; i < analogSamplesLength; i++) {
                 uint8_t* analogSample = (uint8_t*)&(analogSamples[i]);
                 for (uint8_t j = 0; j < 2; j++) {
                     printHex(strm, analogSample[j]);
@@ -429,7 +446,7 @@ XBeeApiFrame::printSummary(Stream& strm) {
         uint8_t* data = pt->getData();
         uint16_t dataLength = pt->getDataLength();
         if (dataLength > 0) strm.print(F("Data: "));
-        for (int i = 0; i < dataLength; i++) {
+        for (uint16_t i = 0; i < dataLength; i++) {
             printHex(strm, data[i]);
             if (i != (dataLength-1)) strm.print(F(" "));
             else strm.print('\r');
@@ -582,7 +599,7 @@ XBeeApiFrame::printSummary(Stream& strm) {
         uint8_t* data = pt->getData();
         uint16_t dataLength = pt->getDataLength();
         if (dataLength > 0) strm.print(F("Data: "));
-        for (int i = 0; i < dataLength; i++) {
+        for (uint16_t i = 0; i < dataLength; i++) {
             printHex(strm, data[i]);
             if (i != (dataLength-1)) strm.print(F(" "));
             else strm.print('\r');
@@ -612,7 +629,7 @@ XBeeApiFrame::printSummary(Stream& strm) {
         uint8_t* data = pt->getData();
         uint16_t dataLength = pt->getDataLength();
         if (dataLength > 0) strm.print(F("Data: "));
-        for (int i = 0; i < dataLength; i++) {
+        for (uint16_t i = 0; i < dataLength; i++) {
             printHex(strm, data[i]);
             if (i != (dataLength-1)) strm.print(F(" "));
             else strm.print('\r');
@@ -646,7 +663,7 @@ XBeeApiFrame::printSummary(Stream& strm) {
             uint16_t* analogSamples = pt->getAnalogSamples();
             uint16_t analogSamplesLength = pt->getAnalogSamplesLength();
             if (analogSamplesLength > 0) strm.print(F("Analog Samples: "));
-            for (int i = 0; i < analogSamplesLength; i++) {
+            for (uint16_t i = 0; i < analogSamplesLength; i++) {
                 uint8_t* analogSample = (uint8_t*)&(analogSamples[i]);
                 for (uint8_t j = 0; j < 2; j++) {
                     printHex(strm, analogSample[j]);
@@ -736,7 +753,7 @@ XBeeApiFrame::printSummary(Stream& strm) {
         uint8_t* data = pt->getData();
         uint16_t dataLength = pt->getDataLength();
         if (dataLength > 0) strm.print(F("Data: "));
-        for (int i = 0; i < dataLength; i++) {
+        for (uint16_t i = 0; i < dataLength; i++) {
             printHex(strm, data[i]);
             if (i != (dataLength-1)) strm.print(F(" "));
             else strm.print('\r');
@@ -2011,7 +2028,7 @@ RemoteAtCommand::setCmd(const char* cmd, const bool& performChecksum) {
         for (uint16_t i = 0; i < REMOTE_AT_COMMAND_HEAD-2; i++) _cmdData[i] = head[i];
     }
 
-    for (int i = 0; i < cmdLength; i++) _cmdData[(REMOTE_AT_COMMAND_HEAD-2)+i] = cmd[i];
+    for (uint16_t i = 0; i < cmdLength; i++) _cmdData[(REMOTE_AT_COMMAND_HEAD-2)+i] = cmd[i];
 
     if (performChecksum) setChecksum();
 }
