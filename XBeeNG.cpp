@@ -2198,6 +2198,111 @@ uint8_t
 CreateSourceRoute::getNAddresses() { return _cmdData[16-CMD_DATA_OFFSET]; }
 
 
+                
+RegisterJoiningDevice::RegisterJoiningDevice(const uint8_t& frameId,
+    const uint32_t& address64Msb, const uint32_t& address64Lsb,
+    const uint16_t& address16, const uint8_t& options,
+    const uint8_t* key, const uint8_t& keyLength) {
+
+    _cmdId = REGISTER_JOINING_DEVICE;
+    _cmdData = new uint8_t[REGISTER_JOINING_DEVICE_HEAD+keyLength];
+
+    setCmdDataLength(REGISTER_JOINING_DEVICE_HEAD+keyLength);
+    setFrameId(frameId);
+    setAddress64(address64Msb, address64Lsb, false);
+    setAddress16(address16, false);
+    setOptions(options, false);
+    setKey(key, keyLength, false);
+    setChecksum();
+}
+#ifdef XBEENG_WITH_EXTRAS
+RegisterJoiningDevice::RegisterJoiningDevice(const uint8_t& frameId,
+    const uint32_t& address64Msb, const uint32_t& address64Lsb,
+    const uint16_t& address16, const uint8_t& options,
+    const std::initializer_list<uint16_t>& key) {
+
+    uint16_t keyLength = key.size();
+
+    _cmdId = REGISTER_JOINING_DEVICE;
+    _cmdData = new uint8_t[REGISTER_JOINING_DEVICE_HEAD+keyLength];
+
+    setCmdDataLength(REGISTER_JOINING_DEVICE_HEAD+keyLength);
+    setFrameId(frameId);
+    setAddress64(address64Msb, address64Lsb, false);
+    setAddress16(address16, false);
+    setOptions(options, false);
+    setKey(key, false);
+    setChecksum();
+}
+#endif
+
+uint8_t
+RegisterJoiningDevice::getOptions() { return _cmdData[15-CMD_DATA_OFFSET]; }
+void
+RegisterJoiningDevice::setOptions(const uint8_t& options,
+    const bool& performChecksum) {
+    _cmdData[15-CMD_DATA_OFFSET] = options;
+    if (performChecksum) setChecksum();
+}
+void
+RegisterJoiningDevice::setOptions(const uint8_t& options) {
+    setOptions(options, true);
+}
+
+void
+RegisterJoiningDevice::setKey(const uint8_t* key, const uint8_t& keyLength,
+    const bool& performChecksum) {
+    if ((getCmdDataLength() - REGISTER_JOINING_DEVICE_HEAD) != keyLength) {
+        uint8_t head[REGISTER_JOINING_DEVICE_HEAD];
+        for (uint16_t i = 0; i < REGISTER_JOINING_DEVICE_HEAD; i++) head[i] = _cmdData[i];
+
+        delete[] _cmdData;
+        _cmdData = new uint8_t[REGISTER_JOINING_DEVICE_HEAD+keyLength];
+        setCmdDataLength(REGISTER_JOINING_DEVICE_HEAD+keyLength);
+
+        for (uint16_t i = 0; i < REGISTER_JOINING_DEVICE_HEAD; i++) _cmdData[i] = head[i];
+    }
+
+    for (uint16_t i = 0; i < keyLength; i++)
+        _cmdData[REGISTER_JOINING_DEVICE_HEAD+i] = key[i];
+
+    if (performChecksum) setChecksum();
+}
+void
+RegisterJoiningDevice::setKey(const uint8_t* key, const uint8_t& keyLength) {
+    setKey(key, true);
+}
+#ifdef XBEENG_WITH_EXTRAS
+void
+RegisterJoiningDevice::setKey(const std::initializer_list<uint16_t>& key,
+    const bool& performChecksum) {
+    uint16_t keyLength = key.size();
+
+    if ((getCmdDataLength() - REGISTER_JOINING_DEVICE_HEAD) != keyLength) {
+        uint8_t head[REGISTER_JOINING_DEVICE_HEAD];
+        for (uint16_t i = 0; i < REGISTER_JOINING_DEVICE_HEAD; i++) head[i] = _cmdData[i];
+
+        delete[] _cmdData;
+        _cmdData = new uint8_t[REGISTER_JOINING_DEVICE_HEAD+keyLength];
+        setCmdDataLength(REGISTER_JOINING_DEVICE_HEAD+keyLength);
+
+        for (uint16_t i = 0; i < REGISTER_JOINING_DEVICE_HEAD; i++) _cmdData[i] = head[i];
+    }
+
+
+    uint16_t i = 0;
+    for (uint8_t key_i : key) _cmdData[REGISTER_JOINING_DEVICE_HEAD+(i++)] = key_i;
+
+    if (performChecksum) setChecksum();
+}
+void
+RegisterJoiningDevice::setKey(const std::initializer_list<uint16_t>& key) {
+    setKey(key, true);
+}
+#endif
+                
+
+
 uint8_t
 Rx64Response::getRssi() { return _cmdData[12-CMD_DATA_OFFSET]; }
 uint8_t

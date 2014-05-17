@@ -34,9 +34,6 @@
 #include <initializer_list>
 #endif
 
-// set to ATAP value of XBee. AP=2 is recommended
-#define ATAP 2
-
 #define XB_START    0x7e
 #define XB_ESCAPE   0x7d
 #define XB_ON       0x11
@@ -65,6 +62,7 @@
 #define EXPLICIT_TX_REQUEST 0x11
 #define REMOTE_AT_COMMAND 0x17
 #define CREATE_SOURCE_ROUTE 0x21
+#define REGISTER_JOINING_DEVICE 0x24
 #define RX_64_RESPONSE 0x80
 #define RX_16_RESPONSE 0x81
 #define RX_64_DATA_SAMPLE 0x82
@@ -87,7 +85,6 @@
 #define RX_MTO_ROUTE_REQUEST 0xa3
 #define RX_DEVICE_AUTHENTICATED 0xa2
 #define REGISTER_JOINING_DEVICE_STATUS 0xa4
-#define REGISTER_JOINING_DEVICE 0x24
 
 /**
  * TX STATUS constants
@@ -681,6 +678,39 @@ private:
     void setAddresses(const uint16_t* addresses, const uint8_t& nAddresses, const bool& performChecksum);
 #ifdef XBEENG_WITH_EXTRAS
     void setAddresses(const std::initializer_list<uint16_t>& addresses, const bool& performChecksum);
+#endif
+};
+
+#define REGISTER_JOINING_DEVICE_HEAD 12
+class RegisterJoiningDevice : public TxRxFrameIdDescription {
+public:
+    RegisterJoiningDevice(const uint8_t& frameId,
+    const uint32_t& address64Msb, const uint32_t& address64Lsb,
+    const uint16_t& address16, const uint8_t& options,
+    const uint8_t* key, const uint8_t& keyLength);
+
+#ifdef XBEENG_WITH_EXTRAS
+    RegisterJoiningDevice(const uint8_t& frameId,
+    const uint32_t& address64Msb, const uint32_t& address64Lsb,
+    const uint16_t& address16, const uint8_t& options,
+    const std::initializer_list<uint16_t>& key);
+#endif
+
+    uint8_t getOptions();
+    void setOptions(const uint8_t& options);
+
+    uint8_t* getKey();
+    void setKey(const uint8_t* key, const uint8_t& keyLength);
+#ifdef XBEENG_WITH_EXTRAS
+    void setKey(const std::initializer_list<uint16_t>& key);
+#endif
+    uint16_t getKeyLength();
+private:
+    void setOptions(const uint8_t& options, const bool& performChecksum);
+
+    void setKey(const uint8_t* key, const uint8_t& keyLength, const bool& performChecksum);
+#ifdef XBEENG_WITH_EXTRAS
+    void setKey(const std::initializer_list<uint16_t>& key, const bool& performChecksum);
 #endif
 };
 
